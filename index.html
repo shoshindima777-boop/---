@@ -13,7 +13,6 @@ body {
   color: white;
 }
 
-/* TOP BAR */
 #topbar {
   height: 56px;
   display: flex;
@@ -25,31 +24,6 @@ body {
   font-weight: bold;
 }
 
-#title {
-  font-size: 16px;
-  letter-spacing: 1px;
-}
-
-/* TOOLBAR */
-#toolbar {
-  display: flex;
-  gap: 8px;
-}
-
-button, select {
-  background: #1b2330;
-  color: white;
-  border: 1px solid rgba(255,255,255,0.08);
-  padding: 6px 10px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #273246;
-}
-
-/* LAYOUT */
 #wrap {
   width: 100vw;
   height: calc(100vh - 56px);
@@ -58,9 +32,7 @@ button:hover {
   cursor: grab;
 }
 
-#wrap:active {
-  cursor: grabbing;
-}
+#wrap:active { cursor: grabbing; }
 
 svg {
   width: 3000px;
@@ -83,18 +55,12 @@ svg {
 }
 
 .station.selected circle {
-  fill: #f59e0b;
-  stroke: #f59e0b;
-}
-
-.station text {
-  fill: #e5e7eb;
-  font-size: 13px;
-  user-select: none;
+  fill: orange;
 }
 
 /* LINES */
 path {
+  stroke: #3b82f6;
   stroke-width: 6;
   fill: none;
 }
@@ -104,14 +70,12 @@ path {
 <body>
 
 <div id="topbar">
-  <div id="title">🚇 МЕТРОПАЛИТЕН-КПРС</div>
+  🚇 МЕТРОПАЛИТЕН-КПРС
 
-  <div id="toolbar">
+  <div>
     <button onclick="addStation()">➕</button>
-    <button onclick="addLineMode()">➖</button>
-    <button onclick="deleteMode()">🗑</button>
-    <button onclick="save()">💾</button>
-    <button onclick="load()">📂</button>
+    <button onclick="toggleLineMode()">➖ Линия</button>
+    <button onclick="toggleDelete()">🗑</button>
   </div>
 </div>
 
@@ -126,13 +90,13 @@ const GRID = 50;
 let stations = [];
 let lines = [];
 
-let selected = null;
 let dragStation = null;
 let isPanning = false;
 
 let lineMode = false;
-let deleteModeActive = false;
-let selectedStations = [];
+let deleteMode = false;
+let selected = [];
+let activeStation = null;
 
 let scale = 1;
 let offsetX = 0;
@@ -173,11 +137,8 @@ function drawGrid() {
 
 /* CURVE */
 function curve(a, b) {
-  const ax = a.x, ay = a.y;
-  const bx = b.x, by = b.y;
-  const dx = (bx - ax) / 2;
-
-  return `M ${ax} ${ay} C ${ax + dx} ${ay}, ${bx - dx} ${by}, ${bx} ${by}`;
+  const dx = (b.x - a.x) / 2;
+  return `M ${a.x} ${a.y} C ${a.x + dx} ${a.y}, ${b.x - dx} ${b.y}, ${b.x} ${b.y}`;
 }
 
 /* RENDER */
@@ -195,20 +156,20 @@ function render() {
     const b = stations[l.b];
     if (!a || !b) return;
 
-    const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    p.setAttribute("d", curve(a,b));
-    p.setAttribute("stroke", l.color);
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("d", curve(a, b));
+    path.setAttribute("stroke", l.color);
 
-    svg.appendChild(p);
+    svg.appendChild(path);
   });
 
   /* STATIONS */
-  stations.forEach((s,i) => {
+  stations.forEach((s, i) => {
 
     const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
     g.classList.add("station");
 
-    if (selected === i) g.classList.add("selected");
+    if (activeStation === i) g.classList.add("selected");
 
     const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
     c.setAttribute("cx", s.x);
@@ -222,31 +183,30 @@ function render() {
 
     c.onmousedown = () => {
 
-      if (deleteModeActive) {
-        stations.splice(i,1);
+      if (deleteMode) {
+        stations.splice(i, 1);
         lines = lines.filter(l => l.a !== i && l.b !== i);
         render();
         return;
       }
 
       if (lineMode) {
-        selectedStations.push(i);
+        selected.push(i);
 
-        if (selectedStations.length === 2) {
+        if (selected.length === 2) {
           lines.push({
-            a: selectedStations[0],
-            b: selectedStations[1],
+            a: selected[0],
+            b: selected[1],
             color: "#3b82f6"
           });
-
-          selectedStations = [];
+          selected = [];
           render();
         }
-      } else {
-        selected = i;
-        dragStation = i;
-        render();
+        return;
       }
+
+      activeStation = i;
+      dragStation = i;
     };
 
     c.ondblclick = () => {
@@ -261,22 +221,16 @@ function render() {
     g.appendChild(t);
     svg.appendChild(g);
   });
-
-  updatePanel();
 }
 
-/* PANEL */
-function updatePanel() {
-  if (selected === null) return;
-}
-
-/* EVENTS */
+/* MOVE */
 window.addEventListener("mousemove", (e) => {
 
   if (dragStation !== null) {
     stations[dragStation].x = snap(stations[dragStation].x + e.movementX / scale);
     stations[dragStation].y = snap(stations[dragStation].y + e.movementY / scale);
     render();
+    return;
   }
 
   if (isPanning) {
@@ -307,40 +261,24 @@ window.addEventListener("wheel", (e) => {
 function addStation() {
   stations.push({
     name: "Station",
-    x: snap(300 + Math.random()*500),
-    y: snap(200 + Math.random()*300)
+    x: snap(300 + Math.random() * 400),
+    y: snap(200 + Math.random() * 300)
   });
   render();
 }
 
-function addLineMode() {
+function toggleLineMode() {
   lineMode = !lineMode;
-  selectedStations = [];
-  alert(lineMode ? "Line ON" : "Line OFF");
+  selected = [];
+  alert(lineMode ? "Line mode ON" : "Line OFF");
 }
 
-function deleteMode() {
-  deleteModeActive = !deleteModeActive;
-  alert(deleteModeActive ? "Delete ON" : "Delete OFF");
-}
-
-/* SAVE/LOAD */
-function save() {
-  localStorage.setItem("metro_v5", JSON.stringify({stations, lines}));
-}
-
-function load() {
-  const data = localStorage.getItem("metro_v5");
-  if (data) {
-    const obj = JSON.parse(data);
-    stations = obj.stations || [];
-    lines = obj.lines || [];
-  }
-  render();
+function toggleDelete() {
+  deleteMode = !deleteMode;
+  alert(deleteMode ? "Delete ON" : "Delete OFF");
 }
 
 /* INIT */
-load();
 render();
 
 </script>
