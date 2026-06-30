@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8" />
-<title>Metro Editor Pro v2</title>
+<title>Metro Editor Pro v3</title>
 
 <style>
 body {
@@ -23,7 +23,7 @@ body {
   border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 
-button {
+button, select {
   background: #1b2330;
   color: white;
   border: 1px solid rgba(255,255,255,0.08);
@@ -70,15 +70,14 @@ svg {
 
 /* LINES */
 path {
-  stroke: #3b82f6;
   stroke-width: 6;
   fill: none;
 }
 
-/* GRID */
-.grid {
-  stroke: rgba(255,255,255,0.05);
-  stroke-width: 1;
+/* DELETE MODE HIGHLIGHT */
+.delete-hover:hover circle {
+  fill: #ef4444;
+  stroke: #ef4444;
 }
 </style>
 </head>
@@ -86,10 +85,22 @@ path {
 <body>
 
 <div id="toolbar">
+
   <button onclick="addStation()">➕ Станция</button>
   <button onclick="addLineMode()">➖ Линия</button>
+
+  <!-- 🎨 COLOR PICKER -->
+  <select id="colorPicker">
+    <option value="#3b82f6">Синяя линия</option>
+    <option value="#ef4444">Красная линия</option>
+    <option value="#22c55e">Зелёная линия</option>
+    <option value="#f59e0b">Оранжевая линия</option>
+  </select>
+
+  <button onclick="deleteMode()">🗑 Delete Mode</button>
   <button onclick="save()">💾 Save</button>
   <button onclick="load()">📂 Load</button>
+
 </div>
 
 <div id="wrap">
@@ -104,39 +115,15 @@ let lines = [];
 let dragStation = null;
 let isPanning = false;
 
-/* CAMERA */
 let scale = 1;
 let offsetX = 0;
 let offsetY = 0;
 
-/* LINE MODE */
 let lineMode = false;
+let deleteModeActive = false;
 let selectedStations = [];
 
 const svg = document.getElementById("svg");
-
-/* ===== GRID ===== */
-function drawGrid() {
-  for (let x = 0; x < 3000; x += 50) {
-    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    line.setAttribute("x1", x);
-    line.setAttribute("y1", 0);
-    line.setAttribute("x2", x);
-    line.setAttribute("y2", 2000);
-    line.classList.add("grid");
-    svg.appendChild(line);
-  }
-
-  for (let y = 0; y < 2000; y += 50) {
-    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    line.setAttribute("x1", 0);
-    line.setAttribute("y1", y);
-    line.setAttribute("x2", 3000);
-    line.setAttribute("y2", y);
-    line.classList.add("grid");
-    svg.appendChild(line);
-  }
-}
 
 /* ===== CURVE ===== */
 function curve(a, b) {
@@ -151,16 +138,24 @@ function render() {
   svg.style.transform =
     `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
 
-  drawGrid();
-
   /* LINES */
-  lines.forEach(l => {
+  lines.forEach((l, idx) => {
     const a = stations[l.a];
     const b = stations[l.b];
     if (!a || !b) return;
 
     const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
     path.setAttribute("d", curve(a, b));
+    path.setAttribute("stroke", l.color);
+    path.setAttribute("data-index", idx);
+
+    /* 🗑 delete line */
+    path.onclick = () => {
+      if (!deleteModeActive) return;
+      lines.splice(idx, 1);
+      render();
+    };
+
     svg.appendChild(path);
   });
 
@@ -168,6 +163,8 @@ function render() {
   stations.forEach((s, i) => {
     const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
     g.classList.add("station");
+
+    if (deleteModeActive) g.classList.add("delete-hover");
 
     const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
     c.setAttribute("cx", s.x);
@@ -179,12 +176,28 @@ function render() {
     t.setAttribute("y", s.y + 5);
     t.textContent = s.name;
 
+    /* MOVE / LINE / DELETE */
     c.onmousedown = () => {
+
+      if (deleteModeActive) {
+        stations.splice(i, 1);
+
+        /* удалить связанные линии */
+        lines = lines.filter(l => l.a !== i && l.b !== i);
+
+        render();
+        return;
+      }
+
       if (lineMode) {
         selectedStations.push(i);
 
         if (selectedStations.length === 2) {
-          lines.push({ a: selectedStations[0], b: selectedStations[1] });
+          lines.push({
+            a: selectedStations[0],
+            b: selectedStations[1],
+            color: document.getElementById("colorPicker").value
+          });
           selectedStations = [];
           render();
         }
@@ -209,6 +222,7 @@ function render() {
 
 /* ===== EVENTS ===== */
 window.addEventListener("mousemove", (e) => {
+
   if (dragStation !== null) {
     stations[dragStation].x += e.movementX / scale;
     stations[dragStation].y += e.movementY / scale;
@@ -237,10 +251,8 @@ document.getElementById("wrap").addEventListener("mousedown", (e) => {
 
 /* ZOOM */
 window.addEventListener("wheel", (e) => {
-  const zoomSpeed = 0.1;
-
-  if (e.deltaY < 0) scale += zoomSpeed;
-  else scale -= zoomSpeed;
+  if (e.deltaY < 0) scale += 0.1;
+  else scale -= 0.1;
 
   scale = Math.min(Math.max(0.5, scale), 3);
   render();
@@ -262,13 +274,18 @@ function addLineMode() {
   alert(lineMode ? "Режим линий включён" : "Режим линий выключен");
 }
 
+function deleteMode() {
+  deleteModeActive = !deleteModeActive;
+  alert(deleteModeActive ? "Delete Mode ON" : "Delete Mode OFF");
+}
+
 /* ===== SAVE / LOAD ===== */
 function save() {
-  localStorage.setItem("metro_v2", JSON.stringify({stations, lines}));
+  localStorage.setItem("metro_v3", JSON.stringify({stations, lines}));
 }
 
 function load() {
-  const data = localStorage.getItem("metro_v2");
+  const data = localStorage.getItem("metro_v3");
   if (data) {
     const obj = JSON.parse(data);
     stations = obj.stations || [];
