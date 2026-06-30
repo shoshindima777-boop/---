@@ -2,14 +2,14 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8" />
-<title>Metro Editor v2 Clean</title>
+<title>Metro Editor Centered</title>
 
 <style>
 body {
   margin: 0;
-  font-family: Arial;
-  background: #0b0f14;
   overflow: hidden;
+  background: #0b0f14;
+  font-family: Arial;
   color: white;
 }
 
@@ -17,23 +17,9 @@ body {
   height: 56px;
   display: flex;
   align-items: center;
-  gap: 10px;
   padding: 0 12px;
-  background: rgba(20,20,25,0.95);
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-}
-
-button, select {
-  background: #1b2330;
-  color: white;
-  border: 1px solid rgba(255,255,255,0.08);
-  padding: 6px 10px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #273246;
+  background: #151922;
+  font-weight: bold;
 }
 
 #wrap {
@@ -44,38 +30,35 @@ button:hover {
   cursor: grab;
 }
 
+/* WORLD */
 #world {
   position: absolute;
-  width: 3000px;
-  height: 2000px;
-  transform-origin: 0 0;
-}
-
-svg {
-  position: absolute;
-  width: 3000px;
-  height: 2000px;
-  pointer-events: none;
+  width: 6000px;
+  height: 4000px;
+  left: 50%;
+  top: 50%;
+  transform-origin: center;
 }
 
 /* GRID */
-.grid {
-  stroke: rgba(255,255,255,0.06);
-  stroke-width: 1;
+svg {
+  position: absolute;
+  width: 6000px;
+  height: 4000px;
 }
 
-/* STATION */
+/* STATIONS */
 .station {
   position: absolute;
-  cursor: grab;
+  user-select: none;
 }
 
 .dot {
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  border: 3px solid #3b82f6;
   background: white;
+  border: 3px solid #3b82f6;
 }
 
 .name {
@@ -85,39 +68,24 @@ svg {
   margin-top: -18px;
 }
 
-/* selected highlight */
-.selected .dot {
-  transform: scale(1.2);
+/* LINE */
+path {
+  stroke: #3b82f6;
+  stroke-width: 6;
+  fill: none;
 }
 </style>
 </head>
 
 <body>
 
-<div id="topbar">
-
-  🚇 METRO EDITOR v2
-
-  <button onclick="addStation()">➕</button>
-  <button onclick="toggleLine()">➖ Line</button>
-  <button onclick="toggleDelete()">🗑</button>
-
-  <select id="lineColor">
-    <option value="#3b82f6">Blue</option>
-    <option value="#ef4444">Red</option>
-    <option value="#22c55e">Green</option>
-    <option value="#f59e0b">Orange</option>
-    <option value="#a855f7">Purple</option>
-  </select>
-
-</div>
+<div id="topbar">🚇 METRO CENTER COORD SYSTEM</div>
 
 <div id="wrap">
   <div id="world">
 
     <svg id="grid"></svg>
     <svg id="lines"></svg>
-
     <div id="stations"></div>
 
   </div>
@@ -125,224 +93,159 @@ svg {
 
 <script>
 
+/* ===== CENTER ORIGIN ===== */
+const WORLD_W = 6000;
+const WORLD_H = 4000;
+
+/* CENTER POINT (0,0) */
+const ORIGIN_X = WORLD_W / 2;
+const ORIGIN_Y = WORLD_H / 2;
+
 /* STATE */
 let stations = [];
 let lines = [];
 
-let drag = null;
-
-let lineMode = false;
-let deleteMode = false;
-let selected = [];
-
 let scale = 1;
 let offsetX = 0;
 let offsetY = 0;
+
+let drag = null;
 
 const world = document.getElementById("world");
 const stationsEl = document.getElementById("stations");
 const linesSvg = document.getElementById("lines");
 const gridSvg = document.getElementById("grid");
 
-/* GRID */
+/* ===== COORD SYSTEM (IMPORTANT FIX) ===== */
+function toScreen(x, y) {
+  return {
+    x: ORIGIN_X + x,
+    y: ORIGIN_Y + y
+  };
+}
+
+/* reverse */
+function toWorld(x, y) {
+  return {
+    x: x - ORIGIN_X,
+    y: y - ORIGIN_Y
+  };
+}
+
+/* ===== GRID ===== */
 function drawGrid() {
   const step = 50;
-  const w = 3000;
-  const h = 2000;
 
-  for (let x = 0; x <= w; x += step) {
+  for (let x = 0; x <= WORLD_W; x += step) {
     const l = document.createElementNS("http://www.w3.org/2000/svg","line");
     l.setAttribute("x1", x);
     l.setAttribute("y1", 0);
     l.setAttribute("x2", x);
-    l.setAttribute("y2", h);
+    l.setAttribute("y2", WORLD_H);
     l.setAttribute("stroke", "rgba(255,255,255,0.06)");
     gridSvg.appendChild(l);
   }
 
-  for (let y = 0; y <= h; y += step) {
+  for (let y = 0; y <= WORLD_H; y += step) {
     const l = document.createElementNS("http://www.w3.org/2000/svg","line");
     l.setAttribute("x1", 0);
     l.setAttribute("y1", y);
-    l.setAttribute("x2", w);
+    l.setAttribute("x2", WORLD_W);
     l.setAttribute("y2", y);
     l.setAttribute("stroke", "rgba(255,255,255,0.06)");
     gridSvg.appendChild(l);
   }
 }
 
-/* LINE CURVE */
-function curve(a,b) {
-  const dx = (b.x - a.x) / 2;
-  return `M ${a.x} ${a.y} C ${a.x + dx} ${a.y}, ${b.x - dx} ${b.y}, ${b.x} ${b.y}`;
+/* ===== CURVE ===== */
+function curve(a,b){
+  const dx = (b.x - a.x)/2;
+  return `M ${a.x} ${a.y} C ${a.x+dx} ${a.y}, ${b.x-dx} ${b.y}, ${b.x} ${b.y}`;
 }
 
-/* RENDER LINES */
-function renderLines() {
+/* ===== RENDER ===== */
+function render(){
+
+  stationsEl.innerHTML = "";
   linesSvg.innerHTML = "";
 
-  lines.forEach((l,i) => {
+  /* LINES */
+  lines.forEach(l=>{
     const a = stations[l.a];
     const b = stations[l.b];
-    if (!a || !b) return;
+    if(!a || !b) return;
+
+    const A = toScreen(a.x,a.y);
+    const B = toScreen(b.x,b.y);
 
     const p = document.createElementNS("http://www.w3.org/2000/svg","path");
-    p.setAttribute("d", curve(a,b));
-    p.setAttribute("stroke", l.color);
-    p.setAttribute("stroke-width", "6");
-    p.setAttribute("fill", "none");
-
-    /* delete line */
-    p.onclick = () => {
-      if (!deleteMode) return;
-      lines.splice(i,1);
-      render();
-    };
+    p.setAttribute("d", curve(A,B));
+    p.setAttribute("stroke","#3b82f6");
+    p.setAttribute("stroke-width","6");
+    p.setAttribute("fill","none");
 
     linesSvg.appendChild(p);
   });
-}
 
-/* RENDER STATIONS */
-function renderStations() {
-  stationsEl.innerHTML = "";
+  /* STATIONS */
+  stations.forEach((s,i)=>{
 
-  stations.forEach((s,i) => {
+    const p = toScreen(s.x,s.y);
 
     const el = document.createElement("div");
     el.className = "station";
-
-    el.style.left = s.x + "px";
-    el.style.top = s.y + "px";
+    el.style.left = p.x + "px";
+    el.style.top = p.y + "px";
 
     el.innerHTML = `
-      <div class="dot" style="border-color:${s.color}"></div>
+      <div class="dot"></div>
       <div class="name">${s.name}</div>
     `;
 
-    if (selected.includes(i)) {
-      el.classList.add("selected");
-    }
-
-    /* drag */
     el.onmousedown = () => {
       drag = i;
-
-      if (lineMode) {
-        selected.push(i);
-
-        if (selected.length === 2) {
-          lines.push({
-            a: selected[0],
-            b: selected[1],
-            color: document.getElementById("lineColor").value
-          });
-
-          selected = [];
-          renderLines();
-        }
-
-        drag = null;
-      }
-
-      if (deleteMode) {
-        stations.splice(i,1);
-        lines = lines.filter(l => l.a !== i && l.b !== i);
-        render();
-      }
-    };
-
-    /* rename */
-    el.ondblclick = () => {
-      const name = prompt("Название:", s.name);
-      if (name) {
-        stations[i].name = name;
-        renderStations();
-      }
-    };
-
-    /* change station color */
-    el.oncontextmenu = (e) => {
-      e.preventDefault();
-      const c = prompt("Цвет станции (hex):", s.color);
-      if (c) {
-        stations[i].color = c;
-        renderStations();
-      }
     };
 
     stationsEl.appendChild(el);
   });
 }
 
-/* RENDER ALL */
-function render() {
-  renderStations();
-  renderLines();
-}
+/* ===== EVENTS ===== */
+window.addEventListener("mousemove",(e)=>{
 
-/* ACTIONS */
-function addStation() {
-  stations.push({
-    name: "Station",
-    x: 200 + Math.random()*400,
-    y: 200 + Math.random()*300,
-    color: "#3b82f6"
-  });
+  if(drag!==null){
+    const w = toWorld(
+      e.clientX,
+      e.clientY - 56
+    );
 
-  renderStations();
-}
+    stations[drag].x = w.x;
+    stations[drag].y = w.y;
 
-/* MODES */
-function toggleLine() {
-  lineMode = !lineMode;
-  selected = [];
-  alert(lineMode ? "Line mode ON" : "OFF");
-}
-
-function toggleDelete() {
-  deleteMode = !deleteMode;
-  alert(deleteMode ? "Delete ON" : "OFF");
-}
-
-/* PAN + ZOOM */
-window.addEventListener("mousemove", (e) => {
-
-  if (drag !== null) {
-    stations[drag].x += e.movementX;
-    stations[drag].y += e.movementY;
-
-    renderStations();
-    renderLines();
-  }
-
-  if (e.buttons === 1 && drag === null) {
-    offsetX += e.movementX;
-    offsetY += e.movementY;
-
-    world.style.transform =
-      `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+    render();
   }
 });
 
-window.addEventListener("mouseup", () => {
-  drag = null;
-});
+window.addEventListener("mouseup",()=>drag=null);
 
-window.addEventListener("wheel", (e) => {
-  scale *= e.deltaY < 0 ? 1.1 : 0.9;
-  scale = Math.min(Math.max(0.5, scale), 3);
+/* zoom */
+window.addEventListener("wheel",(e)=>{
+  const z = e.deltaY < 0 ? 1.1 : 0.9;
+  scale *= z;
+
+  scale = Math.min(Math.max(0.5,scale),3);
 
   world.style.transform =
-    `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+    `translate(${offsetX}px,${offsetY}px) scale(${scale})`;
 });
 
-/* INIT */
+/* init transform */
+world.style.transform =
+  `translate(${offsetX}px,${offsetY}px) scale(${scale})`;
+
+/* init grid + render */
 drawGrid();
 render();
-
-world.style.transform =
-  `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
 
 </script>
 
