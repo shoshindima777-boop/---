@@ -1,70 +1,287 @@
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import {
-  getFirestore,
-  doc,
-  setDoc,
-  getDoc,
-  onSnapshot
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<title>Metro Editor Pro v2</title>
 
-/* 🔥 ВСТАВЬ СЮДА СВОЙ CONFIG */
-const firebaseConfig = {
-  apiKey: "AIzaSyDYAqia7btyRi6nfeg7yUlhVVCp9jruLuc",
-  authDomain: "underground-kprs.firebaseapp.com",
-  databaseURL: "https://underground-kprs-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "underground-kprs",
-  storageBucket: "underground-kprs.firebasestorage.app",
-  messagingSenderId: "119610192330",
-  appId: "1:119610192330:web:531484cb95d7a59beedf33",
-  measurementId: "G-Y6MRFTEWVH"
-};
+<style>
+body {
+  margin: 0;
+  font-family: Arial;
+  background: #0b0f14;
+  overflow: hidden;
+  color: white;
+}
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+#toolbar {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  background: rgba(20,20,25,0.95);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
 
-const docRef = doc(db, "metro", "map");
+button {
+  background: #1b2330;
+  color: white;
+  border: 1px solid rgba(255,255,255,0.08);
+  padding: 8px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+}
 
-/* ====== DATA ====== */
+button:hover {
+  background: #273246;
+}
+
+#wrap {
+  width: 100vw;
+  height: calc(100vh - 56px);
+  overflow: hidden;
+  position: relative;
+  cursor: grab;
+}
+
+#wrap:active {
+  cursor: grabbing;
+}
+
+svg {
+  width: 3000px;
+  height: 2000px;
+  transform-origin: 0 0;
+}
+
+/* STATIONS */
+.station circle {
+  fill: white;
+  stroke: #3b82f6;
+  stroke-width: 3;
+  cursor: pointer;
+}
+
+.station text {
+  fill: #e5e7eb;
+  font-size: 13px;
+  user-select: none;
+}
+
+/* LINES */
+path {
+  stroke: #3b82f6;
+  stroke-width: 6;
+  fill: none;
+}
+
+/* GRID */
+.grid {
+  stroke: rgba(255,255,255,0.05);
+  stroke-width: 1;
+}
+</style>
+</head>
+
+<body>
+
+<div id="toolbar">
+  <button onclick="addStation()">➕ Станция</button>
+  <button onclick="addLineMode()">➖ Линия</button>
+  <button onclick="save()">💾 Save</button>
+  <button onclick="load()">📂 Load</button>
+</div>
+
+<div id="wrap">
+  <svg id="svg"></svg>
+</div>
+
+<script>
+
 let stations = [];
 let lines = [];
 
-/* ====== LOAD REALTIME ====== */
-onSnapshot(docRef, (snap) => {
-  if (snap.exists()) {
-    const data = snap.data();
-    stations = data.stations || [];
-    lines = data.lines || [];
+let dragStation = null;
+let isPanning = false;
+
+/* CAMERA */
+let scale = 1;
+let offsetX = 0;
+let offsetY = 0;
+
+/* LINE MODE */
+let lineMode = false;
+let selectedStations = [];
+
+const svg = document.getElementById("svg");
+
+/* ===== GRID ===== */
+function drawGrid() {
+  for (let x = 0; x < 3000; x += 50) {
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("x1", x);
+    line.setAttribute("y1", 0);
+    line.setAttribute("x2", x);
+    line.setAttribute("y2", 2000);
+    line.classList.add("grid");
+    svg.appendChild(line);
+  }
+
+  for (let y = 0; y < 2000; y += 50) {
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("x1", 0);
+    line.setAttribute("y1", y);
+    line.setAttribute("x2", 3000);
+    line.setAttribute("y2", y);
+    line.classList.add("grid");
+    svg.appendChild(line);
+  }
+}
+
+/* ===== CURVE ===== */
+function curve(a, b) {
+  const dx = (b.x - a.x) / 2;
+  return `M ${a.x} ${a.y} C ${a.x + dx} ${a.y}, ${b.x - dx} ${b.y}, ${b.x} ${b.y}`;
+}
+
+/* ===== RENDER ===== */
+function render() {
+  svg.innerHTML = "";
+
+  svg.style.transform =
+    `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+
+  drawGrid();
+
+  /* LINES */
+  lines.forEach(l => {
+    const a = stations[l.a];
+    const b = stations[l.b];
+    if (!a || !b) return;
+
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("d", curve(a, b));
+    svg.appendChild(path);
+  });
+
+  /* STATIONS */
+  stations.forEach((s, i) => {
+    const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    g.classList.add("station");
+
+    const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    c.setAttribute("cx", s.x);
+    c.setAttribute("cy", s.y);
+    c.setAttribute("r", 10);
+
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", s.x + 14);
+    t.setAttribute("y", s.y + 5);
+    t.textContent = s.name;
+
+    c.onmousedown = () => {
+      if (lineMode) {
+        selectedStations.push(i);
+
+        if (selectedStations.length === 2) {
+          lines.push({ a: selectedStations[0], b: selectedStations[1] });
+          selectedStations = [];
+          render();
+        }
+      } else {
+        dragStation = i;
+      }
+    };
+
+    c.ondblclick = () => {
+      const name = prompt("Название:", s.name);
+      if (name) {
+        stations[i].name = name;
+        render();
+      }
+    };
+
+    g.appendChild(c);
+    g.appendChild(t);
+    svg.appendChild(g);
+  });
+}
+
+/* ===== EVENTS ===== */
+window.addEventListener("mousemove", (e) => {
+  if (dragStation !== null) {
+    stations[dragStation].x += e.movementX / scale;
+    stations[dragStation].y += e.movementY / scale;
+    render();
+    return;
+  }
+
+  if (isPanning) {
+    offsetX += e.movementX;
+    offsetY += e.movementY;
     render();
   }
 });
 
-/* ====== SAVE ====== */
-async function saveToCloud() {
-  await setDoc(docRef, {
-    stations,
-    lines
-  });
-}
+window.addEventListener("mouseup", () => {
+  dragStation = null;
+  isPanning = false;
+});
 
-/* ====== UI HOOK ====== */
-window.save = saveToCloud;
+/* PAN */
+document.getElementById("wrap").addEventListener("mousedown", (e) => {
+  if (e.target.tagName === "svg") {
+    isPanning = true;
+  }
+});
 
-/* ====== YOUR EXISTING FUNCTIONS ====== */
-/* просто вызывай save() вместо localStorage */
+/* ZOOM */
+window.addEventListener("wheel", (e) => {
+  const zoomSpeed = 0.1;
 
-window.addStation = function() {
+  if (e.deltaY < 0) scale += zoomSpeed;
+  else scale -= zoomSpeed;
+
+  scale = Math.min(Math.max(0.5, scale), 3);
+  render();
+});
+
+/* ===== ACTIONS ===== */
+function addStation() {
   stations.push({
     name: "Station",
-    x: 200 + Math.random() * 400,
+    x: 300 + Math.random() * 500,
     y: 200 + Math.random() * 300
   });
-  saveToCloud();
-};
+  render();
+}
 
-window.addLine = function() {
-  alert("Пока оставляем как есть — дальше улучшим");
-};
+function addLineMode() {
+  lineMode = !lineMode;
+  selectedStations = [];
+  alert(lineMode ? "Режим линий включён" : "Режим линий выключен");
+}
 
-/* render() остаётся твоей */
+/* ===== SAVE / LOAD ===== */
+function save() {
+  localStorage.setItem("metro_v2", JSON.stringify({stations, lines}));
+}
+
+function load() {
+  const data = localStorage.getItem("metro_v2");
+  if (data) {
+    const obj = JSON.parse(data);
+    stations = obj.stations || [];
+    lines = obj.lines || [];
+  }
+  render();
+}
+
+/* INIT */
+load();
+render();
+
 </script>
+
+</body>
+</html>
