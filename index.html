@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8" />
-<title>Metro Editor POLISHED</title>
+<title>Metro Editor POLISHED + GRID</title>
 
 <style>
 body {
@@ -39,7 +39,6 @@ button:hover { background:#273246; }
   height: calc(100vh - 56px);
   position: relative;
   overflow: hidden;
-  cursor: grab;
 }
 
 #world {
@@ -49,6 +48,7 @@ button:hover { background:#273246; }
   transform-origin: 0 0;
 }
 
+/* SVG LAYERS */
 svg {
   position: absolute;
   width: 3000px;
@@ -74,6 +74,12 @@ svg {
   margin-left: 20px;
   margin-top: -18px;
 }
+
+/* GRID STYLE */
+.grid line {
+  stroke: rgba(255,255,255,0.06);
+  stroke-width: 1;
+}
 </style>
 </head>
 
@@ -97,8 +103,16 @@ svg {
 
 <div id="wrap">
   <div id="world">
+
+    <!-- GRID (ВОТ ОНА ВЕРНУЛАСЬ) -->
+    <svg id="grid"></svg>
+
+    <!-- LINES -->
     <svg id="lines"></svg>
+
+    <!-- STATIONS -->
     <div id="stations"></div>
+
   </div>
 </div>
 
@@ -122,13 +136,31 @@ let offsetY = 0;
 const world = document.getElementById("world");
 const stationsEl = document.getElementById("stations");
 const linesSvg = document.getElementById("lines");
+const gridSvg = document.getElementById("grid");
 
-/* COORDS FIX */
-function screenToWorld(x,y){
-  return {
-    x:(x-offsetX)/scale,
-    y:(y-offsetY)/scale
-  };
+/* GRID */
+function drawGrid(){
+  const step = 50;
+  const w = 3000;
+  const h = 2000;
+
+  for(let x=0;x<=w;x+=step){
+    const l=document.createElementNS("http://www.w3.org/2000/svg","line");
+    l.setAttribute("x1",x);
+    l.setAttribute("y1",0);
+    l.setAttribute("x2",x);
+    l.setAttribute("y2",h);
+    gridSvg.appendChild(l);
+  }
+
+  for(let y=0;y<=h;y+=step){
+    const l=document.createElementNS("http://www.w3.org/2000/svg","line");
+    l.setAttribute("x1",0);
+    l.setAttribute("y1",y);
+    l.setAttribute("x2",w);
+    l.setAttribute("y2",y);
+    gridSvg.appendChild(l);
+  }
 }
 
 /* CURVE */
@@ -137,7 +169,7 @@ function curve(a,b){
   return `M ${a.x} ${a.y} C ${a.x+dx} ${a.y}, ${b.x-dx} ${b.y}, ${b.x} ${b.y}`;
 }
 
-/* RENDER (optimized) */
+/* RENDER OPTIMIZED */
 let renderPending=false;
 
 function render(){
@@ -179,6 +211,7 @@ function renderStations(){
   stations.forEach((s,i)=>{
     const el=document.createElement("div");
     el.className="station";
+
     el.style.left=s.x+"px";
     el.style.top=s.y+"px";
 
@@ -253,7 +286,15 @@ function exportMap(){
   navigator.clipboard.writeText(JSON.stringify({stations,lines},null,2));
 }
 
-/* MOVE + PAN FIX */
+/* COORDS */
+function screenToWorld(x,y){
+  return {
+    x:(x-offsetX)/scale,
+    y:(y-offsetY)/scale
+  };
+}
+
+/* MOVE */
 window.addEventListener("mousemove",(e)=>{
 
   if(drag!==null){
@@ -287,6 +328,7 @@ window.addEventListener("wheel",(e)=>{
 });
 
 /* INIT */
+drawGrid();
 render();
 
 world.style.transform=
