@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8" />
-<title>Metro Editor v2 PRO</title>
+<title>Metro Editor POLISHED</title>
 
 <style>
 body {
@@ -32,9 +32,7 @@ button, select {
   cursor: pointer;
 }
 
-button:hover {
-  background: #273246;
-}
+button:hover { background:#273246; }
 
 #wrap {
   width: 100vw;
@@ -72,14 +70,9 @@ svg {
 }
 
 .name {
-  color: white;
   font-size: 13px;
   margin-left: 20px;
   margin-top: -18px;
-}
-
-.selected .dot {
-  transform: scale(1.2);
 }
 </style>
 </head>
@@ -87,25 +80,23 @@ svg {
 <body>
 
 <div id="topbar">
-  🚇 METRO EDITOR v2 PRO
+🚇 METRO POLISHED
 
-  <button onclick="addStation()">➕</button>
-  <button onclick="toggleLine()">➖ Line</button>
-  <button onclick="toggleDelete()">🗑</button>
-  <button onclick="exportMap()">💾 Export</button>
+<button onclick="addStation()">➕</button>
+<button onclick="toggleLine()">➖ Line</button>
+<button onclick="toggleDelete()">🗑</button>
+<button onclick="exportMap()">💾</button>
 
-  <select id="lineColor">
-    <option value="#3b82f6">Blue</option>
-    <option value="#ef4444">Red</option>
-    <option value="#22c55e">Green</option>
-    <option value="#f59e0b">Orange</option>
-    <option value="#a855f7">Purple</option>
-  </select>
+<select id="lineColor">
+  <option value="#3b82f6">Blue</option>
+  <option value="#ef4444">Red</option>
+  <option value="#22c55e">Green</option>
+  <option value="#f59e0b">Orange</option>
+</select>
 </div>
 
 <div id="wrap">
   <div id="world">
-    <svg id="grid"></svg>
     <svg id="lines"></svg>
     <div id="stations"></div>
   </div>
@@ -116,7 +107,6 @@ svg {
 /* STATE */
 let stations = [];
 let lines = [];
-let graph = {};
 
 let lineMode = false;
 let deleteMode = false;
@@ -132,74 +122,40 @@ let offsetY = 0;
 const world = document.getElementById("world");
 const stationsEl = document.getElementById("stations");
 const linesSvg = document.getElementById("lines");
-const gridSvg = document.getElementById("grid");
 
-/* GRID */
-function drawGrid() {
-  const step = 50;
-  const w = 3000;
-  const h = 2000;
-
-  for (let x = 0; x <= w; x += step) {
-    const l = document.createElementNS("http://www.w3.org/2000/svg","line");
-    l.setAttribute("x1", x);
-    l.setAttribute("y1", 0);
-    l.setAttribute("x2", x);
-    l.setAttribute("y2", h);
-    l.setAttribute("stroke", "rgba(255,255,255,0.06)");
-    gridSvg.appendChild(l);
-  }
-
-  for (let y = 0; y <= h; y += step) {
-    const l = document.createElementNS("http://www.w3.org/2000/svg","line");
-    l.setAttribute("x1", 0);
-    l.setAttribute("y1", y);
-    l.setAttribute("x2", w);
-    l.setAttribute("y2", y);
-    l.setAttribute("stroke", "rgba(255,255,255,0.06)");
-    gridSvg.appendChild(l);
-  }
+/* COORDS FIX */
+function screenToWorld(x,y){
+  return {
+    x:(x-offsetX)/scale,
+    y:(y-offsetY)/scale
+  };
 }
 
 /* CURVE */
-function curve(a,b) {
-  const dx = (b.x - a.x) / 2;
-  return `M ${a.x} ${a.y} C ${a.x + dx} ${a.y}, ${b.x - dx} ${b.y}, ${b.x} ${b.y}`;
+function curve(a,b){
+  const dx=(b.x-a.x)/2;
+  return `M ${a.x} ${a.y} C ${a.x+dx} ${a.y}, ${b.x-dx} ${b.y}, ${b.x} ${b.y}`;
 }
 
-/* GRAPH */
-function addConnection(a,b){
-  if(!graph[a]) graph[a]=[];
-  if(!graph[b]) graph[b]=[];
-  graph[a].push(b);
-  graph[b].push(a);
+/* RENDER (optimized) */
+let renderPending=false;
+
+function render(){
+  if(renderPending) return;
+  renderPending=true;
+
+  requestAnimationFrame(()=>{
+    renderPending=false;
+    renderStations();
+    renderLines();
+  });
 }
 
-/* PATHFIND */
-function findPath(start,end){
-  let q=[[start]];
-  let v=new Set();
-
-  while(q.length){
-    let p=q.shift();
-    let n=p[p.length-1];
-
-    if(n===end) return p;
-    if(v.has(n)) continue;
-    v.add(n);
-
-    (graph[n]||[]).forEach(x=>{
-      q.push([...p,x]);
-    });
-  }
-  return null;
-}
-
-/* RENDER LINES */
+/* LINES */
 function renderLines(){
   linesSvg.innerHTML="";
 
-  lines.forEach(line=>{
+  for(const line of lines){
     for(let i=0;i<line.stations.length-1;i++){
       const a=stations[line.stations[i]];
       const b=stations[line.stations[i+1]];
@@ -213,17 +169,16 @@ function renderLines(){
 
       linesSvg.appendChild(p);
     }
-  });
+  }
 }
 
-/* RENDER STATIONS */
+/* STATIONS */
 function renderStations(){
   stationsEl.innerHTML="";
 
   stations.forEach((s,i)=>{
     const el=document.createElement("div");
     el.className="station";
-
     el.style.left=s.x+"px";
     el.style.top=s.y+"px";
 
@@ -232,11 +187,12 @@ function renderStations(){
       <div class="name">${s.name}</div>
     `;
 
-    /* DRAG */
     el.onmousedown=(e)=>{
+      const p=screenToWorld(e.clientX,e.clientY);
+
       drag=i;
-      dragOffset.x=e.clientX-s.x;
-      dragOffset.y=e.clientY-s.y;
+      dragOffset.x=p.x-s.x;
+      dragOffset.y=p.y-s.y;
 
       if(lineMode && currentLine){
         currentLine.stations.push(i);
@@ -244,35 +200,26 @@ function renderStations(){
 
       if(deleteMode){
         stations.splice(i,1);
-        lines=lines.filter(l=>!l.stations.includes(i));
+        lines=lines.map(l=>({
+          ...l,
+          stations:l.stations.filter(x=>x!==i)
+        })).filter(l=>l.stations.length>1);
+
         render();
       }
     };
 
     el.ondblclick=()=>{
-      const n=prompt("Name:",s.name);
+      const n=prompt("name",s.name);
       if(n) stations[i].name=n;
-      renderStations();
-    };
-
-    el.oncontextmenu=(e)=>{
-      e.preventDefault();
-      const c=prompt("Color:",s.color);
-      if(c) stations[i].color=c;
-      renderStations();
+      render();
     };
 
     stationsEl.appendChild(el);
   });
 }
 
-/* RENDER ALL */
-function render(){
-  renderStations();
-  renderLines();
-}
-
-/* ADD STATION */
+/* ADD */
 function addStation(){
   stations.push({
     name:"Station",
@@ -280,10 +227,10 @@ function addStation(){
     y:200+Math.random()*300,
     color:"#3b82f6"
   });
-  renderStations();
+  render();
 }
 
-/* LINE MODE */
+/* LINE */
 function toggleLine(){
   lineMode=!lineMode;
 
@@ -294,30 +241,29 @@ function toggleLine(){
     };
     lines.push(currentLine);
   }
-
-  alert(lineMode?"Line ON":"OFF");
 }
 
-/* DELETE MODE */
+/* DELETE */
 function toggleDelete(){
   deleteMode=!deleteMode;
-  alert(deleteMode?"Delete ON":"OFF");
 }
 
 /* EXPORT */
 function exportMap(){
-  navigator.clipboard.writeText(JSON.stringify({stations,lines}));
-  alert("Copied JSON!");
+  navigator.clipboard.writeText(JSON.stringify({stations,lines},null,2));
 }
 
-/* MOVE + PAN */
+/* MOVE + PAN FIX */
 window.addEventListener("mousemove",(e)=>{
 
   if(drag!==null){
-    stations[drag].x=e.clientX-dragOffset.x;
-    stations[drag].y=e.clientY-dragOffset.y;
+    const p=screenToWorld(e.clientX,e.clientY);
+
+    stations[drag].x=p.x-dragOffset.x;
+    stations[drag].y=p.y-dragOffset.y;
 
     render();
+    return;
   }
 
   if(e.buttons===1 && drag===null){
@@ -329,9 +275,7 @@ window.addEventListener("mousemove",(e)=>{
   }
 });
 
-window.addEventListener("mouseup",()=>{
-  drag=null;
-});
+window.addEventListener("mouseup",()=>drag=null);
 
 /* ZOOM */
 window.addEventListener("wheel",(e)=>{
@@ -343,7 +287,6 @@ window.addEventListener("wheel",(e)=>{
 });
 
 /* INIT */
-drawGrid();
 render();
 
 world.style.transform=
