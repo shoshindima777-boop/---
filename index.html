@@ -13,6 +13,7 @@ body {
   color: white;
 }
 
+/* TOP */
 #topbar {
   height: 56px;
   display: flex;
@@ -24,17 +25,27 @@ body {
   font-weight: bold;
 }
 
+button {
+  background: #1b2330;
+  color: white;
+  border: 1px solid rgba(255,255,255,0.08);
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* WRAP */
 #wrap {
   width: 100vw;
   height: calc(100vh - 56px);
-  overflow: hidden;
   position: relative;
+  overflow: hidden;
   cursor: grab;
 }
 
-#wrap:active { cursor: grabbing; }
-
-svg {
+/* CANVAS (important fix) */
+#canvas {
+  position: absolute;
   width: 3000px;
   height: 2000px;
   transform-origin: 0 0;
@@ -46,23 +57,35 @@ svg {
   stroke-width: 1;
 }
 
-/* STATION */
-.station circle {
-  fill: white;
-  stroke: #3b82f6;
-  stroke-width: 3;
-  cursor: pointer;
+/* STATIONS */
+.station {
+  position: absolute;
+  cursor: grab;
+  user-select: none;
 }
 
-.station.selected circle {
-  fill: orange;
+.station .dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 3px solid #3b82f6;
+  background: white;
+}
+
+.station .name {
+  color: white;   /* 👈 FIX */
+  font-size: 13px;
+  margin-left: 20px;
+  margin-top: -18px;
+  white-space: nowrap;
 }
 
 /* LINES */
-path {
-  stroke: #3b82f6;
-  stroke-width: 6;
-  fill: none;
+svg {
+  position: absolute;
+  width: 3000px;
+  height: 2000px;
+  pointer-events: none;
 }
 </style>
 </head>
@@ -74,13 +97,29 @@ path {
 
   <div>
     <button onclick="addStation()">➕</button>
-    <button onclick="toggleLineMode()">➖ Линия</button>
-    <button onclick="toggleDelete()">🗑</button>
+    <button onclick="toggleLine()">➖ Линия</button>
+
+    <select id="colorPick">
+      <option value="#3b82f6">Blue</option>
+      <option value="#ef4444">Red</option>
+      <option value="#22c55e">Green</option>
+      <option value="#f59e0b">Orange</option>
+      <option value="#a855f7">Purple</option>
+    </select>
   </div>
 </div>
 
 <div id="wrap">
-  <svg id="svg"></svg>
+
+  <!-- GRID -->
+  <svg id="grid"></svg>
+
+  <!-- LINES -->
+  <svg id="lines"></svg>
+
+  <!-- STATIONS -->
+  <div id="canvas"></div>
+
 </div>
 
 <script>
@@ -90,105 +129,84 @@ const GRID = 50;
 let stations = [];
 let lines = [];
 
-let dragStation = null;
-let isPanning = false;
-
 let lineMode = false;
-let deleteMode = false;
 let selected = [];
-let activeStation = null;
 
-let scale = 1;
-let offsetX = 0;
-let offsetY = 0;
+let drag = null;
 
-const svg = document.getElementById("svg");
+const canvas = document.getElementById("canvas");
+const linesSvg = document.getElementById("lines");
+const gridSvg = document.getElementById("grid");
 
-/* SNAP */
-function snap(v) {
-  return Math.round(v / GRID) * GRID;
-}
-
-/* GRID */
+/* ===== GRID (static, fixed, visible always) ===== */
 function drawGrid() {
   const w = 3000;
   const h = 2000;
 
   for (let x = 0; x <= w; x += GRID) {
-    const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    const l = document.createElementNS("http://www.w3.org/2000/svg","line");
     l.setAttribute("x1", x);
     l.setAttribute("y1", 0);
     l.setAttribute("x2", x);
     l.setAttribute("y2", h);
-    l.classList.add("grid");
-    svg.appendChild(l);
+    l.setAttribute("stroke", "rgba(255,255,255,0.06)");
+    gridSvg.appendChild(l);
   }
 
   for (let y = 0; y <= h; y += GRID) {
-    const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    const l = document.createElementNS("http://www.w3.org/2000/svg","line");
     l.setAttribute("x1", 0);
     l.setAttribute("y1", y);
     l.setAttribute("x2", w);
     l.setAttribute("y2", y);
-    l.classList.add("grid");
-    svg.appendChild(l);
+    l.setAttribute("stroke", "rgba(255,255,255,0.06)");
+    gridSvg.appendChild(l);
   }
 }
 
-/* CURVE */
-function curve(a, b) {
-  const dx = (b.x - a.x) / 2;
-  return `M ${a.x} ${a.y} C ${a.x + dx} ${a.y}, ${b.x - dx} ${b.y}, ${b.x} ${b.y}`;
-}
+/* ===== RENDER LINES ===== */
+function renderLines() {
+  linesSvg.innerHTML = "";
 
-/* RENDER */
-function render() {
-  svg.innerHTML = "";
-
-  svg.style.transform =
-    `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
-
-  drawGrid();
-
-  /* LINES */
   lines.forEach(l => {
     const a = stations[l.a];
     const b = stations[l.b];
     if (!a || !b) return;
 
-    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    path.setAttribute("d", curve(a, b));
+    const dx = (b.x - a.x) / 2;
+
+    const path = document.createElementNS("http://www.w3.org/2000/svg","path");
+    path.setAttribute("d",
+      `M ${a.x} ${a.y} C ${a.x + dx} ${a.y}, ${b.x - dx} ${b.y}, ${b.x} ${b.y}`
+    );
+
     path.setAttribute("stroke", l.color);
+    path.setAttribute("stroke-width", "6");
+    path.setAttribute("fill", "none");
 
-    svg.appendChild(path);
+    linesSvg.appendChild(path);
   });
+}
 
-  /* STATIONS */
-  stations.forEach((s, i) => {
+/* ===== RENDER STATIONS ===== */
+function renderStations() {
+  canvas.innerHTML = "";
 
-    const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
-    g.classList.add("station");
+  stations.forEach((s,i) => {
 
-    if (activeStation === i) g.classList.add("selected");
+    const el = document.createElement("div");
+    el.className = "station";
+    el.style.left = s.x + "px";
+    el.style.top = s.y + "px";
 
-    const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-    c.setAttribute("cx", s.x);
-    c.setAttribute("cy", s.y);
-    c.setAttribute("r", 10);
+    el.innerHTML = `
+      <div class="dot" style="border-color:${s.color}"></div>
+      <div class="name">${s.name}</div>
+    `;
 
-    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
-    t.setAttribute("x", s.x + 14);
-    t.setAttribute("y", s.y + 5);
-    t.textContent = s.name;
-
-    c.onmousedown = () => {
-
-      if (deleteMode) {
-        stations.splice(i, 1);
-        lines = lines.filter(l => l.a !== i && l.b !== i);
-        render();
-        return;
-      }
+    /* DRAG FIX (real HTML drag, not SVG conflict) */
+    el.onmousedown = (e) => {
+      drag = i;
 
       if (lineMode) {
         selected.push(i);
@@ -197,89 +215,76 @@ function render() {
           lines.push({
             a: selected[0],
             b: selected[1],
-            color: "#3b82f6"
+            color: document.getElementById("colorPick").value
           });
-          selected = [];
-          render();
-        }
-        return;
-      }
 
-      activeStation = i;
-      dragStation = i;
+          selected = [];
+          renderLines();
+        }
+
+        drag = null;
+      }
     };
 
-    c.ondblclick = () => {
+    /* change name */
+    el.ondblclick = () => {
       const name = prompt("Название:", s.name);
       if (name) {
         stations[i].name = name;
-        render();
+        renderStations();
       }
     };
 
-    g.appendChild(c);
-    g.appendChild(t);
-    svg.appendChild(g);
+    /* change color */
+    el.oncontextmenu = (e) => {
+      e.preventDefault();
+      const color = prompt("Цвет станции (hex):", s.color);
+      if (color) {
+        stations[i].color = color;
+        renderStations();
+      }
+    };
+
+    canvas.appendChild(el);
   });
 }
 
-/* MOVE */
+/* ===== GLOBAL MOVE FIX ===== */
 window.addEventListener("mousemove", (e) => {
+  if (drag !== null) {
+    stations[drag].x += e.movementX;
+    stations[drag].y += e.movementY;
 
-  if (dragStation !== null) {
-    stations[dragStation].x = snap(stations[dragStation].x + e.movementX / scale);
-    stations[dragStation].y = snap(stations[dragStation].y + e.movementY / scale);
-    render();
-    return;
-  }
-
-  if (isPanning) {
-    offsetX += e.movementX;
-    offsetY += e.movementY;
-    render();
+    renderStations();
+    renderLines();
   }
 });
 
 window.addEventListener("mouseup", () => {
-  dragStation = null;
-  isPanning = false;
+  drag = null;
 });
 
-/* PAN */
-document.getElementById("wrap").addEventListener("mousedown", (e) => {
-  if (e.target.tagName === "svg") isPanning = true;
-});
-
-/* ZOOM */
-window.addEventListener("wheel", (e) => {
-  scale += e.deltaY < 0 ? 0.1 : -0.1;
-  scale = Math.min(Math.max(0.5, scale), 3);
-  render();
-});
-
-/* ACTIONS */
+/* ===== ACTIONS ===== */
 function addStation() {
   stations.push({
     name: "Station",
-    x: snap(300 + Math.random() * 400),
-    y: snap(200 + Math.random() * 300)
+    x: 200 + Math.random()*400,
+    y: 200 + Math.random()*300,
+    color: "#3b82f6"
   });
-  render();
+
+  renderStations();
 }
 
-function toggleLineMode() {
+function toggleLine() {
   lineMode = !lineMode;
   selected = [];
-  alert(lineMode ? "Line mode ON" : "Line OFF");
+  alert(lineMode ? "Line ON" : "Line OFF");
 }
 
-function toggleDelete() {
-  deleteMode = !deleteMode;
-  alert(deleteMode ? "Delete ON" : "Delete OFF");
-}
-
-/* INIT */
-render();
+/* ===== INIT ===== */
+drawGrid();
+renderStations();
 
 </script>
 
