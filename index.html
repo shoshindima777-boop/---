@@ -26,54 +26,7 @@ body {
   overflow: hidden;
   color: var(--ink);
   user-select: none;
-
-  animation: flicker 0.12s infinite;
-  filter: contrast(1.05) saturate(1.1);
 }
-
-/* ===== CRT OLD TV EFFECT ===== */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 9999;
-  background:
-    repeating-linear-gradient(
-      to bottom,
-      rgba(255,255,255,0.03),
-      rgba(255,255,255,0.03) 1px,
-      transparent 2px,
-      transparent 4px
-    );
-  mix-blend-mode: overlay;
-  opacity: 0.25;
-}
-
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 10000;
-  background: radial-gradient(circle at center,
-    rgba(255,255,255,0.05),
-    rgba(0,0,0,0.35)
-  );
-  opacity: 0.6;
-}
-
-@keyframes flicker {
-  0% { opacity: 1; }
-  50% { opacity: 0.97; }
-  100% { opacity: 1; }
-}
-
-#world {
-  filter: blur(0.2px);
-}
-
-/* ===== ORIGINAL CODE ===== */
 
 #topbar {
   height: 58px;
@@ -88,8 +41,403 @@ body::after {
   z-index: 20;
 }
 
-/* ... (остальной твой CSS без изменений) ... */
+#logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  margin-right: 6px;
+  white-space: nowrap;
+}
 
+#logo .badge {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  box-shadow: 0 0 14px rgba(59,130,246,0.5);
+}
+
+#logo small {
+  display: block;
+  font-weight: 400;
+  font-size: 10px;
+  color: var(--ink-dim);
+  letter-spacing: 1px;
+}
+
+.divider {
+  width: 1px;
+  height: 28px;
+  background: rgba(255,255,255,0.08);
+  margin: 0 4px;
+}
+
+button, select {
+  background: #161f2b;
+  color: var(--ink);
+  border: 1px solid rgba(255,255,255,0.09);
+  padding: 7px 12px;
+  border-radius: 9px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+}
+
+button:hover {
+  background: #20303f;
+  border-color: rgba(255,255,255,0.18);
+}
+
+button:active {
+  transform: scale(0.96);
+}
+
+button.active {
+  background: var(--accent);
+  border-color: #60a5fa;
+  box-shadow: 0 0 12px rgba(59,130,246,0.55);
+}
+
+select {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+#hint {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--ink-dim);
+  font-family: var(--mono);
+  white-space: nowrap;
+}
+
+#wrap {
+  width: 100vw;
+  height: calc(100vh - 58px);
+  position: relative;
+  overflow: hidden;
+  cursor: grab;
+}
+
+#wrap.panning {
+  cursor: grabbing;
+}
+
+#world {
+  position: absolute;
+  width: 3000px;
+  height: 2000px;
+  transform-origin: 0 0;
+  background:
+    radial-gradient(ellipse 1400px 900px at 50% 40%, rgba(59,130,246,0.04), transparent 60%);
+}
+
+svg {
+  position: absolute;
+  width: 3000px;
+  height: 2000px;
+  pointer-events: none;
+}
+
+#lines path {
+  filter: drop-shadow(0 0 5px currentColor);
+}
+
+.station {
+  position: absolute;
+  cursor: grab;
+  touch-action: none;
+  z-index: 2;
+}
+
+.dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 3px solid #3b82f6;
+  background: #0c131c;
+  box-sizing: border-box;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+
+.station:hover .dot {
+  transform: scale(1.15);
+}
+
+.interchange .dot {
+  background: #0c131c;
+  box-shadow: 0 0 0 3px #0c131c, 0 0 0 5px rgba(255,255,255,0.55);
+}
+
+.name {
+  color: var(--ink);
+  font-size: 12.5px;
+  margin-left: 22px;
+  margin-top: -19px;
+  white-space: nowrap;
+  pointer-events: none;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.9), 0 0 12px rgba(0,0,0,0.6);
+  letter-spacing: 0.2px;
+}
+
+.selected .dot {
+  transform: scale(1.35);
+  box-shadow: 0 0 0 4px rgba(255,255,255,0.55), 0 0 16px rgba(255,255,255,0.4);
+}
+
+.highlighted .dot {
+  box-shadow: 0 0 0 4px #fff, 0 0 18px #fff;
+}
+
+/* INFO PANEL */
+#panel {
+  position: fixed;
+  top: 58px;
+  right: 0;
+  width: 300px;
+  height: calc(100vh - 58px);
+  background: linear-gradient(180deg, #0e1620, #0a1118);
+  border-left: 1px solid rgba(255,255,255,0.08);
+  box-shadow: -12px 0 30px rgba(0,0,0,0.4);
+  transform: translateX(100%);
+  transition: transform 0.25s ease;
+  z-index: 15;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#panel.open {
+  transform: translateX(0);
+}
+
+#panelStripe {
+  height: 6px;
+  width: 100%;
+  background: #3b82f6;
+  flex-shrink: 0;
+}
+
+#panelHead {
+  padding: 18px 18px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+#panelHead .eyebrow {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 1.5px;
+  color: var(--ink-dim);
+  text-transform: uppercase;
+}
+
+#panelName {
+  font-size: 21px;
+  font-weight: 700;
+  margin-top: 4px;
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+#panelClose {
+  background: none;
+  border: none;
+  color: var(--ink-dim);
+  font-size: 18px;
+  padding: 2px 6px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+#panelClose:hover {
+  color: var(--ink);
+  background: none;
+}
+
+#panelBody {
+  padding: 4px 18px 18px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.panel-section {
+  margin-top: 16px;
+}
+
+.panel-section .label {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 1.5px;
+  color: var(--ink-dim);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.line-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  margin-bottom: 6px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.line-chip .swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 6px currentColor;
+}
+
+.neighbor-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  margin-bottom: 6px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.neighbor-row:hover {
+  background: rgba(59,130,246,0.12);
+}
+
+.neighbor-row .swatch {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 6px currentColor;
+}
+
+.empty-note {
+  font-size: 12.5px;
+  color: var(--ink-dim);
+  font-style: italic;
+}
+
+#panelActions {
+  padding: 14px 18px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+#panelActions button {
+  flex: 1;
+  font-size: 12.5px;
+}
+
+#panelBody::-webkit-scrollbar { width: 6px; }
+#panelBody::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 3px; }
+
+/* MODAL */
+#modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(4,6,10,0.6);
+  backdrop-filter: blur(2px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+#modalOverlay.open {
+  display: flex;
+}
+
+#modalBox {
+  width: 320px;
+  background: linear-gradient(180deg, #131c27, #0d141d);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  padding: 20px;
+}
+
+#modalTitle {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  color: var(--ink-dim);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+#modalInput {
+  width: 100%;
+  box-sizing: border-box;
+  background: #0a1119;
+  border: 1px solid rgba(255,255,255,0.12);
+  color: var(--ink);
+  padding: 10px 12px;
+  border-radius: 9px;
+  font-size: 14px;
+  outline: none;
+}
+
+#modalInput:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.25);
+}
+
+#modalSwatches {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.swatch-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  flex-shrink: 0;
+}
+
+.swatch-btn.picked {
+  border-color: #fff;
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.3);
+}
+
+#modalColorNative {
+  width: 36px;
+  height: 28px;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+#modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 18px;
+}
 </style>
 </head>
 
@@ -144,19 +492,16 @@ body::after {
     </div>
     <button id="panelClose" onclick="closePanel()">✕</button>
   </div>
-
   <div id="panelBody">
     <div class="panel-section">
       <div class="label">Lines through this station</div>
       <div id="panelLines"></div>
     </div>
-
     <div class="panel-section">
       <div class="label">Connected stations</div>
       <div id="panelNeighbors"></div>
     </div>
   </div>
-
   <div id="panelActions">
     <button onclick="renameSelected()">✎ Rename</button>
     <button onclick="recolorSelected()">🎨 Color</button>
@@ -164,7 +509,425 @@ body::after {
 </div>
 
 <script>
-/* твой JS оставлен без изменений */
+
+/* STATE */
+let stations = [];   // {id, name, x, y, color}
+let lines = [];       // {color, stations: [id, id, ...]}
+let nextId = 1;
+
+let lineMode = false;
+let deleteMode = false;
+let currentLine = null;
+
+let dragId = null;
+let dragMoved = false;
+let dragOffset = {x:0,y:0};
+let mouseDownPos = {x:0,y:0};
+
+let selectedId = null;
+
+let panning = false;
+let panStart = {x:0,y:0};
+let panOrigin = {x:0,y:0};
+
+let scale = 1;
+let offsetX = 0;
+let offsetY = 0;
+
+const wrap = document.getElementById("wrap");
+const world = document.getElementById("world");
+const stationsEl = document.getElementById("stations");
+const linesSvg = document.getElementById("lines");
+const gridSvg = document.getElementById("grid");
+const hint = document.getElementById("hint");
+
+/* GRID */
+function drawGrid() {
+  const step = 50;
+  const w = 3000;
+  const h = 2000;
+  const frag = document.createDocumentFragment();
+
+  for (let x = 0; x <= w; x += step) {
+    const l = document.createElementNS("http://www.w3.org/2000/svg","line");
+    l.setAttribute("x1", x);
+    l.setAttribute("y1", 0);
+    l.setAttribute("x2", x);
+    l.setAttribute("y2", h);
+    l.setAttribute("stroke", "rgba(255,255,255,0.06)");
+    frag.appendChild(l);
+  }
+
+  for (let y = 0; y <= h; y += step) {
+    const l = document.createElementNS("http://www.w3.org/2000/svg","line");
+    l.setAttribute("x1", 0);
+    l.setAttribute("y1", y);
+    l.setAttribute("x2", w);
+    l.setAttribute("y2", y);
+    l.setAttribute("stroke", "rgba(255,255,255,0.06)");
+    frag.appendChild(l);
+  }
+
+  gridSvg.appendChild(frag);
+}
+
+/* HELPERS */
+function getStation(id){
+  return stations.find(s => s.id === id);
+}
+
+function curve(a,b) {
+  const dx = (b.x - a.x) / 2;
+  return `M ${a.x} ${a.y} C ${a.x + dx} ${a.y}, ${b.x - dx} ${b.y}, ${b.x} ${b.y}`;
+}
+
+/* RENDER LINES */
+function renderLines(){
+  linesSvg.innerHTML="";
+
+  lines.forEach(line=>{
+    for(let i=0;i<line.stations.length-1;i++){
+      const a=getStation(line.stations[i]);
+      const b=getStation(line.stations[i+1]);
+      if(!a||!b) continue;
+
+      const p=document.createElementNS("http://www.w3.org/2000/svg","path");
+      p.setAttribute("d",curve(a,b));
+      p.setAttribute("stroke",line.color);
+      p.setAttribute("stroke-width","6");
+      p.setAttribute("fill","none");
+      p.setAttribute("stroke-linecap","round");
+
+      linesSvg.appendChild(p);
+    }
+  });
+}
+
+/* RENDER STATIONS */
+function renderStations(){
+  stationsEl.innerHTML="";
+
+  stations.forEach((s)=>{
+    const el=document.createElement("div");
+    const linesHere = lines.filter(l => l.stations.includes(s.id));
+    let cls = "station";
+    if(linesHere.length > 1) cls += " interchange";
+    if(currentLine && currentLine.stations.includes(s.id)) cls += " selected";
+    if(s.id === selectedId) cls += " highlighted";
+    el.className = cls;
+
+    el.style.left=s.x+"px";
+    el.style.top=s.y+"px";
+
+    el.innerHTML=`
+      <div class="dot" style="border-color:${s.color}"></div>
+      <div class="name">${s.name}</div>
+    `;
+
+    el.onmousedown=(e)=>{
+      e.stopPropagation();
+
+      if(deleteMode){
+        deleteStation(s.id);
+        return;
+      }
+
+      if(lineMode && currentLine){
+        const arr = currentLine.stations;
+        if(arr[arr.length-1] !== s.id){
+          arr.push(s.id);
+        }
+        renderStations();
+        renderLines();
+        return;
+      }
+
+      dragId = s.id;
+      dragMoved = false;
+      mouseDownPos.x = e.clientX;
+      mouseDownPos.y = e.clientY;
+      dragOffset.x = e.clientX - s.x * scale;
+      dragOffset.y = e.clientY - s.y * scale;
+    };
+
+    el.ondblclick=(e)=>{
+      e.stopPropagation();
+      const n=prompt("Name:",s.name);
+      if(n) s.name=n;
+      renderStations();
+      if(selectedId === s.id) openPanel(s.id);
+    };
+
+    el.oncontextmenu=(e)=>{
+      e.preventDefault();
+      e.stopPropagation();
+      const c=prompt("Color (hex):",s.color);
+      if(c) s.color=c;
+      renderStations();
+      renderLines();
+      if(selectedId === s.id) openPanel(s.id);
+    };
+
+    stationsEl.appendChild(el);
+  });
+}
+
+/* RENDER ALL */
+function render(){
+  renderStations();
+  renderLines();
+}
+
+/* INFO PANEL */
+const panel = document.getElementById("panel");
+const panelStripe = document.getElementById("panelStripe");
+const panelName = document.getElementById("panelName");
+const panelLines = document.getElementById("panelLines");
+const panelNeighbors = document.getElementById("panelNeighbors");
+
+function openPanel(id){
+  const s = getStation(id);
+  if(!s) return;
+  selectedId = id;
+
+  panelName.textContent = s.name;
+  panelStripe.style.background = s.color;
+
+  const linesHere = lines.filter(l => l.stations.includes(id));
+  panelLines.innerHTML = "";
+  if(linesHere.length === 0){
+    panelLines.innerHTML = `<div class="empty-note">Not on any line yet.</div>`;
+  } else {
+    linesHere.forEach((l, idx) => {
+      const chip = document.createElement("div");
+      chip.className = "line-chip";
+      chip.innerHTML = `<span class="swatch" style="background:${l.color};color:${l.color}"></span> Line ${idx+1} · ${l.stations.length} stations`;
+      panelLines.appendChild(chip);
+    });
+  }
+
+  const neighborIds = new Set();
+  linesHere.forEach(l => {
+    const i = l.stations.indexOf(id);
+    if(l.stations[i-1] !== undefined) neighborIds.add(l.stations[i-1]);
+    if(l.stations[i+1] !== undefined) neighborIds.add(l.stations[i+1]);
+  });
+
+  panelNeighbors.innerHTML = "";
+  if(neighborIds.size === 0){
+    panelNeighbors.innerHTML = `<div class="empty-note">No direct connections.</div>`;
+  } else {
+    [...neighborIds].forEach(nid => {
+      const n = getStation(nid);
+      if(!n) return;
+      const row = document.createElement("div");
+      row.className = "neighbor-row";
+      row.innerHTML = `<span class="swatch" style="background:${n.color};color:${n.color}"></span> ${n.name}`;
+      row.onclick = () => openPanel(nid);
+      panelNeighbors.appendChild(row);
+    });
+  }
+
+  panel.classList.add("open");
+  renderStations();
+}
+
+function closePanel(){
+  selectedId = null;
+  panel.classList.remove("open");
+  renderStations();
+}
+
+function renameSelected(){
+  if(selectedId === null) return;
+  const s = getStation(selectedId);
+  if(!s) return;
+  const n = prompt("Name:", s.name);
+  if(n){ s.name = n; render(); openPanel(selectedId); }
+}
+
+function recolorSelected(){
+  if(selectedId === null) return;
+  const s = getStation(selectedId);
+  if(!s) return;
+  const c = prompt("Color (hex):", s.color);
+  if(c){ s.color = c; render(); openPanel(selectedId); }
+}
+
+/* ADD STATION */
+function addStation(){
+  stations.push({
+    id: nextId++,
+    name:"Station",
+    x: (200+Math.random()*400 - offsetX)/scale,
+    y: (200+Math.random()*300 - offsetY)/scale,
+    color:"#3b82f6"
+  });
+  renderStations();
+}
+
+/* DELETE STATION */
+function deleteStation(id){
+  stations = stations.filter(s => s.id !== id);
+  lines.forEach(l => {
+    l.stations = l.stations.filter(sid => sid !== id);
+  });
+  lines = lines.filter(l => l.stations.length > 1 || l === currentLine);
+  if(selectedId === id) closePanel();
+  render();
+}
+
+/* LINE MODE */
+function toggleLine(){
+  lineMode=!lineMode;
+  deleteMode=false;
+  document.getElementById("deleteBtn").classList.remove("active");
+
+  if(lineMode){
+    currentLine={
+      stations:[],
+      color:document.getElementById("lineColor").value
+    };
+    lines.push(currentLine);
+    hint.textContent = "Click stations in order to connect them. Click 'Line' again to finish.";
+  } else {
+    if(currentLine && currentLine.stations.length < 2){
+      lines = lines.filter(l => l !== currentLine);
+    }
+    currentLine = null;
+    hint.textContent = "";
+  }
+
+  document.getElementById("lineBtn").classList.toggle("active", lineMode);
+  render();
+}
+
+/* DELETE MODE */
+function toggleDelete(){
+  deleteMode=!deleteMode;
+  lineMode=false;
+  document.getElementById("lineBtn").classList.remove("active");
+  if(currentLine && currentLine.stations.length < 2){
+    lines = lines.filter(l => l !== currentLine);
+  }
+  currentLine = null;
+
+  document.getElementById("deleteBtn").classList.toggle("active", deleteMode);
+  hint.textContent = deleteMode ? "Click a station to delete it." : "";
+}
+
+/* EXPORT */
+function exportMap(){
+  const data = JSON.stringify({stations,lines,nextId});
+  navigator.clipboard.writeText(data).then(()=>{
+    alert("Map JSON copied to clipboard!");
+  }).catch(()=>{
+    prompt("Copy the JSON below:", data);
+  });
+}
+
+/* IMPORT */
+function importMap(){
+  const data = prompt("Paste map JSON:");
+  if(!data) return;
+  try{
+    const parsed = JSON.parse(data);
+    stations = parsed.stations || [];
+    lines = parsed.lines || [];
+    nextId = parsed.nextId || (Math.max(0, ...stations.map(s=>s.id)) + 1);
+    currentLine = null;
+    lineMode = false;
+    deleteMode = false;
+    document.getElementById("lineBtn").classList.remove("active");
+    document.getElementById("deleteBtn").classList.remove("active");
+    render();
+  }catch(e){
+    alert("Invalid JSON");
+  }
+}
+
+/* RESET VIEW */
+function resetView(){
+  scale = 1;
+  offsetX = 0;
+  offsetY = 0;
+  applyTransform();
+}
+
+function applyTransform(){
+  world.style.transform = `translate(${offsetX}px,${offsetY}px) scale(${scale})`;
+}
+
+/* PAN (only starts when clicking empty canvas) */
+wrap.addEventListener("mousedown",(e)=>{
+  if(e.target !== wrap && e.target !== world) return;
+  if(dragId !== null) return;
+
+  if(selectedId !== null) closePanel();
+
+  panning = true;
+  wrap.classList.add("panning");
+  panStart.x = e.clientX;
+  panStart.y = e.clientY;
+  panOrigin.x = offsetX;
+  panOrigin.y = offsetY;
+});
+
+/* MOVE */
+window.addEventListener("mousemove",(e)=>{
+
+  if(dragId !== null){
+    dragMoved = true;
+    const s = getStation(dragId);
+    if(s){
+      s.x = (e.clientX - dragOffset.x) / scale;
+      s.y = (e.clientY - dragOffset.y) / scale;
+      render();
+    }
+    return;
+  }
+
+  if(panning){
+    offsetX = panOrigin.x + (e.clientX - panStart.x);
+    offsetY = panOrigin.y + (e.clientY - panStart.y);
+    applyTransform();
+  }
+});
+
+window.addEventListener("mouseup",(e)=>{
+  if(dragId !== null && !dragMoved){
+    openPanel(dragId);
+  }
+  dragId = null;
+  panning = false;
+  wrap.classList.remove("panning");
+});
+
+/* ZOOM (centered on cursor) */
+wrap.addEventListener("wheel",(e)=>{
+  e.preventDefault();
+
+  const rect = wrap.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+
+  const worldX = (mouseX - offsetX) / scale;
+  const worldY = (mouseY - offsetY) / scale;
+
+  const factor = e.deltaY < 0 ? 1.1 : 0.9;
+  scale = Math.min(Math.max(0.3, scale * factor), 3);
+
+  offsetX = mouseX - worldX * scale;
+  offsetY = mouseY - worldY * scale;
+
+  applyTransform();
+}, { passive:false });
+
+/* INIT */
+drawGrid();
+render();
+applyTransform();
+
 </script>
 
 </body>
