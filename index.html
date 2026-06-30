@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8" />
-<title>Metro Editor v2 Clean</title>
+<title>Metro Editor v2 PRO</title>
 
 <style>
 body {
@@ -58,13 +58,6 @@ svg {
   pointer-events: none;
 }
 
-/* GRID */
-.grid {
-  stroke: rgba(255,255,255,0.06);
-  stroke-width: 1;
-}
-
-/* STATION */
 .station {
   position: absolute;
   cursor: grab;
@@ -85,7 +78,6 @@ svg {
   margin-top: -18px;
 }
 
-/* selected highlight */
 .selected .dot {
   transform: scale(1.2);
 }
@@ -95,12 +87,12 @@ svg {
 <body>
 
 <div id="topbar">
-
-  🚇 METRO EDITOR v2
+  🚇 METRO EDITOR v2 PRO
 
   <button onclick="addStation()">➕</button>
   <button onclick="toggleLine()">➖ Line</button>
   <button onclick="toggleDelete()">🗑</button>
+  <button onclick="exportMap()">💾 Export</button>
 
   <select id="lineColor">
     <option value="#3b82f6">Blue</option>
@@ -109,17 +101,13 @@ svg {
     <option value="#f59e0b">Orange</option>
     <option value="#a855f7">Purple</option>
   </select>
-
 </div>
 
 <div id="wrap">
   <div id="world">
-
     <svg id="grid"></svg>
     <svg id="lines"></svg>
-
     <div id="stations"></div>
-
   </div>
 </div>
 
@@ -128,12 +116,14 @@ svg {
 /* STATE */
 let stations = [];
 let lines = [];
-
-let drag = null;
+let graph = {};
 
 let lineMode = false;
 let deleteMode = false;
-let selected = [];
+let currentLine = null;
+
+let drag = null;
+let dragOffset = {x:0,y:0};
 
 let scale = 1;
 let offsetX = 0;
@@ -171,104 +161,105 @@ function drawGrid() {
   }
 }
 
-/* LINE CURVE */
+/* CURVE */
 function curve(a,b) {
   const dx = (b.x - a.x) / 2;
   return `M ${a.x} ${a.y} C ${a.x + dx} ${a.y}, ${b.x - dx} ${b.y}, ${b.x} ${b.y}`;
 }
 
+/* GRAPH */
+function addConnection(a,b){
+  if(!graph[a]) graph[a]=[];
+  if(!graph[b]) graph[b]=[];
+  graph[a].push(b);
+  graph[b].push(a);
+}
+
+/* PATHFIND */
+function findPath(start,end){
+  let q=[[start]];
+  let v=new Set();
+
+  while(q.length){
+    let p=q.shift();
+    let n=p[p.length-1];
+
+    if(n===end) return p;
+    if(v.has(n)) continue;
+    v.add(n);
+
+    (graph[n]||[]).forEach(x=>{
+      q.push([...p,x]);
+    });
+  }
+  return null;
+}
+
 /* RENDER LINES */
-function renderLines() {
-  linesSvg.innerHTML = "";
+function renderLines(){
+  linesSvg.innerHTML="";
 
-  lines.forEach((l,i) => {
-    const a = stations[l.a];
-    const b = stations[l.b];
-    if (!a || !b) return;
+  lines.forEach(line=>{
+    for(let i=0;i<line.stations.length-1;i++){
+      const a=stations[line.stations[i]];
+      const b=stations[line.stations[i+1]];
+      if(!a||!b) continue;
 
-    const p = document.createElementNS("http://www.w3.org/2000/svg","path");
-    p.setAttribute("d", curve(a,b));
-    p.setAttribute("stroke", l.color);
-    p.setAttribute("stroke-width", "6");
-    p.setAttribute("fill", "none");
+      const p=document.createElementNS("http://www.w3.org/2000/svg","path");
+      p.setAttribute("d",curve(a,b));
+      p.setAttribute("stroke",line.color);
+      p.setAttribute("stroke-width","6");
+      p.setAttribute("fill","none");
 
-    /* delete line */
-    p.onclick = () => {
-      if (!deleteMode) return;
-      lines.splice(i,1);
-      render();
-    };
-
-    linesSvg.appendChild(p);
+      linesSvg.appendChild(p);
+    }
   });
 }
 
 /* RENDER STATIONS */
-function renderStations() {
-  stationsEl.innerHTML = "";
+function renderStations(){
+  stationsEl.innerHTML="";
 
-  stations.forEach((s,i) => {
+  stations.forEach((s,i)=>{
+    const el=document.createElement("div");
+    el.className="station";
 
-    const el = document.createElement("div");
-    el.className = "station";
+    el.style.left=s.x+"px";
+    el.style.top=s.y+"px";
 
-    el.style.left = s.x + "px";
-    el.style.top = s.y + "px";
-
-    el.innerHTML = `
+    el.innerHTML=`
       <div class="dot" style="border-color:${s.color}"></div>
       <div class="name">${s.name}</div>
     `;
 
-    if (selected.includes(i)) {
-      el.classList.add("selected");
-    }
+    /* DRAG */
+    el.onmousedown=(e)=>{
+      drag=i;
+      dragOffset.x=e.clientX-s.x;
+      dragOffset.y=e.clientY-s.y;
 
-    /* drag */
-    el.onmousedown = () => {
-      drag = i;
-
-      if (lineMode) {
-        selected.push(i);
-
-        if (selected.length === 2) {
-          lines.push({
-            a: selected[0],
-            b: selected[1],
-            color: document.getElementById("lineColor").value
-          });
-
-          selected = [];
-          renderLines();
-        }
-
-        drag = null;
+      if(lineMode && currentLine){
+        currentLine.stations.push(i);
       }
 
-      if (deleteMode) {
+      if(deleteMode){
         stations.splice(i,1);
-        lines = lines.filter(l => l.a !== i && l.b !== i);
+        lines=lines.filter(l=>!l.stations.includes(i));
         render();
       }
     };
 
-    /* rename */
-    el.ondblclick = () => {
-      const name = prompt("Название:", s.name);
-      if (name) {
-        stations[i].name = name;
-        renderStations();
-      }
+    el.ondblclick=()=>{
+      const n=prompt("Name:",s.name);
+      if(n) stations[i].name=n;
+      renderStations();
     };
 
-    /* change station color */
-    el.oncontextmenu = (e) => {
+    el.oncontextmenu=(e)=>{
       e.preventDefault();
-      const c = prompt("Цвет станции (hex):", s.color);
-      if (c) {
-        stations[i].color = c;
-        renderStations();
-      }
+      const c=prompt("Color:",s.color);
+      if(c) stations[i].color=c;
+      renderStations();
     };
 
     stationsEl.appendChild(el);
@@ -276,73 +267,87 @@ function renderStations() {
 }
 
 /* RENDER ALL */
-function render() {
+function render(){
   renderStations();
   renderLines();
 }
 
-/* ACTIONS */
-function addStation() {
+/* ADD STATION */
+function addStation(){
   stations.push({
-    name: "Station",
-    x: 200 + Math.random()*400,
-    y: 200 + Math.random()*300,
-    color: "#3b82f6"
+    name:"Station",
+    x:200+Math.random()*400,
+    y:200+Math.random()*300,
+    color:"#3b82f6"
   });
-
   renderStations();
 }
 
-/* MODES */
-function toggleLine() {
-  lineMode = !lineMode;
-  selected = [];
-  alert(lineMode ? "Line mode ON" : "OFF");
-}
+/* LINE MODE */
+function toggleLine(){
+  lineMode=!lineMode;
 
-function toggleDelete() {
-  deleteMode = !deleteMode;
-  alert(deleteMode ? "Delete ON" : "OFF");
-}
-
-/* PAN + ZOOM */
-window.addEventListener("mousemove", (e) => {
-
-  if (drag !== null) {
-    stations[drag].x += e.movementX;
-    stations[drag].y += e.movementY;
-
-    renderStations();
-    renderLines();
+  if(lineMode){
+    currentLine={
+      stations:[],
+      color:document.getElementById("lineColor").value
+    };
+    lines.push(currentLine);
   }
 
-  if (e.buttons === 1 && drag === null) {
-    offsetX += e.movementX;
-    offsetY += e.movementY;
+  alert(lineMode?"Line ON":"OFF");
+}
 
-    world.style.transform =
-      `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+/* DELETE MODE */
+function toggleDelete(){
+  deleteMode=!deleteMode;
+  alert(deleteMode?"Delete ON":"OFF");
+}
+
+/* EXPORT */
+function exportMap(){
+  navigator.clipboard.writeText(JSON.stringify({stations,lines}));
+  alert("Copied JSON!");
+}
+
+/* MOVE + PAN */
+window.addEventListener("mousemove",(e)=>{
+
+  if(drag!==null){
+    stations[drag].x=e.clientX-dragOffset.x;
+    stations[drag].y=e.clientY-dragOffset.y;
+
+    render();
+  }
+
+  if(e.buttons===1 && drag===null){
+    offsetX+=e.movementX;
+    offsetY+=e.movementY;
+
+    world.style.transform=
+      `translate(${offsetX}px,${offsetY}px) scale(${scale})`;
   }
 });
 
-window.addEventListener("mouseup", () => {
-  drag = null;
+window.addEventListener("mouseup",()=>{
+  drag=null;
 });
 
-window.addEventListener("wheel", (e) => {
-  scale *= e.deltaY < 0 ? 1.1 : 0.9;
-  scale = Math.min(Math.max(0.5, scale), 3);
+/* ZOOM */
+window.addEventListener("wheel",(e)=>{
+  scale*=e.deltaY<0?1.1:0.9;
+  scale=Math.min(Math.max(0.5,scale),3);
 
-  world.style.transform =
-    `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+  world.style.transform=
+    `translate(${offsetX}px,${offsetY}px) scale(${scale})`;
 });
 
 /* INIT */
 drawGrid();
 render();
 
-world.style.transform =
-  `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+world.style.transform=
+  `translate(${offsetX}px,${offsetY}px) scale(${scale})`;
 
 </script>
 
