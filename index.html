@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8" />
-<title>Metro Editor FIXED</title>
+<title>Metro Editor v2 PRO</title>
 
 <style>
 body {
@@ -32,13 +32,16 @@ button, select {
   cursor: pointer;
 }
 
-button:hover { background:#273246; }
+button:hover {
+  background: #273246;
+}
 
 #wrap {
   width: 100vw;
   height: calc(100vh - 56px);
   position: relative;
   overflow: hidden;
+  cursor: grab;
 }
 
 #world {
@@ -69,32 +72,40 @@ svg {
 }
 
 .name {
+  color: white;
   font-size: 13px;
   margin-left: 20px;
   margin-top: -18px;
 }
 
+.selected .dot {
+  transform: scale(1.2);
+}
 </style>
 </head>
 
 <body>
 
 <div id="topbar">
-🚇 METRO FIXED
+  🚇 METRO EDITOR v2 PRO
 
-<button onclick="addStation()">➕</button>
-<button onclick="toggleLine()">➖ Line</button>
-<button onclick="toggleDelete()">🗑</button>
+  <button onclick="addStation()">➕</button>
+  <button onclick="toggleLine()">➖ Line</button>
+  <button onclick="toggleDelete()">🗑</button>
+  <button onclick="exportMap()">💾 Export</button>
 
-<select id="lineColor">
-  <option value="#3b82f6">Blue</option>
-  <option value="#ef4444">Red</option>
-  <option value="#22c55e">Green</option>
-</select>
+  <select id="lineColor">
+    <option value="#3b82f6">Blue</option>
+    <option value="#ef4444">Red</option>
+    <option value="#22c55e">Green</option>
+    <option value="#f59e0b">Orange</option>
+    <option value="#a855f7">Purple</option>
+  </select>
 </div>
 
 <div id="wrap">
   <div id="world">
+    <svg id="grid"></svg>
     <svg id="lines"></svg>
     <div id="stations"></div>
   </div>
@@ -121,60 +132,85 @@ let offsetY = 0;
 const world = document.getElementById("world");
 const stationsEl = document.getElementById("stations");
 const linesSvg = document.getElementById("lines");
+const gridSvg = document.getElementById("grid");
 
-/* COORDINATES FIX */
-function screenToWorld(x,y){
-  return {
-    x:(x-offsetX)/scale,
-    y:(y-offsetY)/scale
-  };
-}
+/* GRID */
+function drawGrid() {
+  const step = 50;
+  const w = 3000;
+  const h = 2000;
 
-/* CURVE */
-function curve(a,b){
-  const dx=(b.x-a.x)/2;
-  return `M ${a.x} ${a.y} C ${a.x+dx} ${a.y}, ${b.x-dx} ${b.y}, ${b.x} ${b.y}`;
-}
+  for (let x = 0; x <= w; x += step) {
+    const l = document.createElementNS("http://www.w3.org/2000/svg","line");
+    l.setAttribute("x1", x);
+    l.setAttribute("y1", 0);
+    l.setAttribute("x2", x);
+    l.setAttribute("y2", h);
+    l.setAttribute("stroke", "rgba(255,255,255,0.06)");
+    gridSvg.appendChild(l);
+  }
 
-/* LINE MODE */
-function toggleLine(){
-  lineMode=!lineMode;
-  if(lineMode){
-    currentLine={stations:[],color:document.getElementById("lineColor").value};
-    lines.push(currentLine);
+  for (let y = 0; y <= h; y += step) {
+    const l = document.createElementNS("http://www.w3.org/2000/svg","line");
+    l.setAttribute("x1", 0);
+    l.setAttribute("y1", y);
+    l.setAttribute("x2", w);
+    l.setAttribute("y2", y);
+    l.setAttribute("stroke", "rgba(255,255,255,0.06)");
+    gridSvg.appendChild(l);
   }
 }
 
-/* DELETE */
-function toggleDelete(){
-  deleteMode=!deleteMode;
+/* CURVE */
+function curve(a,b) {
+  const dx = (b.x - a.x) / 2;
+  return `M ${a.x} ${a.y} C ${a.x + dx} ${a.y}, ${b.x - dx} ${b.y}, ${b.x} ${b.y}`;
 }
 
-/* ADD STATION */
-function addStation(){
-  stations.push({
-    name:"Station",
-    x:200+Math.random()*300,
-    y:200+Math.random()*200,
-    color:"#3b82f6"
-  });
-  render();
+/* GRAPH */
+function addConnection(a,b){
+  if(!graph[a]) graph[a]=[];
+  if(!graph[b]) graph[b]=[];
+  graph[a].push(b);
+  graph[b].push(a);
+}
+
+/* PATHFIND */
+function findPath(start,end){
+  let q=[[start]];
+  let v=new Set();
+
+  while(q.length){
+    let p=q.shift();
+    let n=p[p.length-1];
+
+    if(n===end) return p;
+    if(v.has(n)) continue;
+    v.add(n);
+
+    (graph[n]||[]).forEach(x=>{
+      q.push([...p,x]);
+    });
+  }
+  return null;
 }
 
 /* RENDER LINES */
 function renderLines(){
   linesSvg.innerHTML="";
-  lines.forEach(l=>{
-    for(let i=0;i<l.stations.length-1;i++){
-      const a=stations[l.stations[i]];
-      const b=stations[l.stations[i+1]];
+
+  lines.forEach(line=>{
+    for(let i=0;i<line.stations.length-1;i++){
+      const a=stations[line.stations[i]];
+      const b=stations[line.stations[i+1]];
       if(!a||!b) continue;
 
       const p=document.createElementNS("http://www.w3.org/2000/svg","path");
       p.setAttribute("d",curve(a,b));
-      p.setAttribute("stroke",l.color);
+      p.setAttribute("stroke",line.color);
       p.setAttribute("stroke-width","6");
       p.setAttribute("fill","none");
+
       linesSvg.appendChild(p);
     }
   });
@@ -187,6 +223,7 @@ function renderStations(){
   stations.forEach((s,i)=>{
     const el=document.createElement("div");
     el.className="station";
+
     el.style.left=s.x+"px";
     el.style.top=s.y+"px";
 
@@ -195,12 +232,11 @@ function renderStations(){
       <div class="name">${s.name}</div>
     `;
 
+    /* DRAG */
     el.onmousedown=(e)=>{
-      const p=screenToWorld(e.clientX,e.clientY);
-
       drag=i;
-      dragOffset.x=p.x-s.x;
-      dragOffset.y=p.y-s.y;
+      dragOffset.x=e.clientX-s.x;
+      dragOffset.y=e.clientY-s.y;
 
       if(lineMode && currentLine){
         currentLine.stations.push(i);
@@ -214,8 +250,15 @@ function renderStations(){
     };
 
     el.ondblclick=()=>{
-      const n=prompt("name",s.name);
+      const n=prompt("Name:",s.name);
       if(n) stations[i].name=n;
+      renderStations();
+    };
+
+    el.oncontextmenu=(e)=>{
+      e.preventDefault();
+      const c=prompt("Color:",s.color);
+      if(c) stations[i].color=c;
       renderStations();
     };
 
@@ -229,17 +272,52 @@ function render(){
   renderLines();
 }
 
-/* MOVE FIXED */
+/* ADD STATION */
+function addStation(){
+  stations.push({
+    name:"Station",
+    x:200+Math.random()*400,
+    y:200+Math.random()*300,
+    color:"#3b82f6"
+  });
+  renderStations();
+}
+
+/* LINE MODE */
+function toggleLine(){
+  lineMode=!lineMode;
+
+  if(lineMode){
+    currentLine={
+      stations:[],
+      color:document.getElementById("lineColor").value
+    };
+    lines.push(currentLine);
+  }
+
+  alert(lineMode?"Line ON":"OFF");
+}
+
+/* DELETE MODE */
+function toggleDelete(){
+  deleteMode=!deleteMode;
+  alert(deleteMode?"Delete ON":"OFF");
+}
+
+/* EXPORT */
+function exportMap(){
+  navigator.clipboard.writeText(JSON.stringify({stations,lines}));
+  alert("Copied JSON!");
+}
+
+/* MOVE + PAN */
 window.addEventListener("mousemove",(e)=>{
 
   if(drag!==null){
-    const p=screenToWorld(e.clientX,e.clientY);
-
-    stations[drag].x=p.x-dragOffset.x;
-    stations[drag].y=p.y-dragOffset.y;
+    stations[drag].x=e.clientX-dragOffset.x;
+    stations[drag].y=e.clientY-dragOffset.y;
 
     render();
-    return;
   }
 
   if(e.buttons===1 && drag===null){
@@ -251,7 +329,9 @@ window.addEventListener("mousemove",(e)=>{
   }
 });
 
-window.addEventListener("mouseup",()=>drag=null);
+window.addEventListener("mouseup",()=>{
+  drag=null;
+});
 
 /* ZOOM */
 window.addEventListener("wheel",(e)=>{
@@ -263,7 +343,11 @@ window.addEventListener("wheel",(e)=>{
 });
 
 /* INIT */
+drawGrid();
 render();
+
+world.style.transform=
+  `translate(${offsetX}px,${offsetY}px) scale(${scale})`;
 
 </script>
 
