@@ -2,27 +2,26 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8" />
-<title>МЕТРОПАЛИТЕН-КПРС</title>
+<title>Metro Editor v1</title>
 
 <style>
 body {
   margin: 0;
-  font-family: Arial;
-  background: #0b0f14;
   overflow: hidden;
+  background: #0b0f14;
+  font-family: Arial;
   color: white;
 }
 
 /* TOP */
-#topbar {
+#top {
   height: 56px;
+  background: #151922;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 14px;
-  background: rgba(20,20,25,0.95);
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+  padding: 0 12px;
   font-weight: bold;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 
 /* WRAP */
@@ -34,7 +33,7 @@ body {
   cursor: grab;
 }
 
-/* WORLD (everything moves here) */
+/* WORLD (camera) */
 #world {
   position: absolute;
   width: 3000px;
@@ -48,14 +47,13 @@ body {
   stroke-width: 1;
 }
 
-/* STATION */
+/* STATIONS */
 .station {
   position: absolute;
-  user-select: none;
   cursor: grab;
 }
 
-.station .dot {
+.dot {
   width: 16px;
   height: 16px;
   border-radius: 50%;
@@ -63,7 +61,7 @@ body {
   border: 3px solid #3b82f6;
 }
 
-.station .name {
+.name {
   color: white;
   font-size: 13px;
   margin-left: 20px;
@@ -83,55 +81,44 @@ svg {
 
 <body>
 
-<div id="topbar">
-  🚇 МЕТРОПАЛИТЕН-КПРС
-
-  <div>
-    <button onclick="addStation()">➕</button>
-    <button onclick="toggleLine()">➖ Линия</button>
-  </div>
-</div>
+<div id="top">🚇 METRO EDITOR v1 CLEAN</div>
 
 <div id="wrap">
-  <div id="world">
 
+  <div id="world">
     <svg id="grid"></svg>
     <svg id="lines"></svg>
-
     <div id="stations"></div>
-
   </div>
+
 </div>
 
 <script>
 
-const GRID = 50;
-
-/* WORLD STATE */
+/* ===== STATE ===== */
 let stations = [];
 let lines = [];
-
-let lineMode = false;
-let selected = [];
-
-let dragStation = null;
 
 /* CAMERA */
 let scale = 1;
 let offsetX = 0;
 let offsetY = 0;
 
+/* DRAG */
+let drag = null;
+
 const world = document.getElementById("world");
 const stationsEl = document.getElementById("stations");
 const linesSvg = document.getElementById("lines");
 const gridSvg = document.getElementById("grid");
 
-/* ================= GRID ================= */
+/* ===== GRID ===== */
 function drawGrid() {
+  const step = 50;
   const w = 3000;
   const h = 2000;
 
-  for (let x = 0; x <= w; x += GRID) {
+  for (let x = 0; x <= w; x += step) {
     const l = document.createElementNS("http://www.w3.org/2000/svg","line");
     l.setAttribute("x1", x);
     l.setAttribute("y1", 0);
@@ -141,7 +128,7 @@ function drawGrid() {
     gridSvg.appendChild(l);
   }
 
-  for (let y = 0; y <= h; y += GRID) {
+  for (let y = 0; y <= h; y += step) {
     const l = document.createElementNS("http://www.w3.org/2000/svg","line");
     l.setAttribute("x1", 0);
     l.setAttribute("y1", y);
@@ -152,29 +139,13 @@ function drawGrid() {
   }
 }
 
-/* ================= COORD FIX (IMPORTANT) ================= */
-function toScreen(x, y) {
-  return {
-    x: x * scale + offsetX,
-    y: y * scale + offsetY
-  };
-}
-
-function toWorld(x, y) {
-  return {
-    x: (x - offsetX) / scale,
-    y: (y - offsetY) / scale
-  };
-}
-
-/* ================= CURVE ================= */
+/* ===== CURVE ===== */
 function curve(a, b) {
   const dx = (b.x - a.x) / 2;
-
   return `M ${a.x} ${a.y} C ${a.x + dx} ${a.y}, ${b.x - dx} ${b.y}, ${b.x} ${b.y}`;
 }
 
-/* ================= RENDER LINES ================= */
+/* ===== RENDER LINES ===== */
 function renderLines() {
   linesSvg.innerHTML = "";
 
@@ -193,7 +164,7 @@ function renderLines() {
   });
 }
 
-/* ================= RENDER STATIONS ================= */
+/* ===== RENDER STATIONS ===== */
 function renderStations() {
   stationsEl.innerHTML = "";
 
@@ -202,19 +173,16 @@ function renderStations() {
     const el = document.createElement("div");
     el.className = "station";
 
-    const pos = toScreen(s.x, s.y);
-
-    el.style.left = pos.x + "px";
-    el.style.top = pos.y + "px";
+    el.style.left = s.x + "px";
+    el.style.top = s.y + "px";
 
     el.innerHTML = `
-      <div class="dot" style="border-color:${s.color}"></div>
+      <div class="dot"></div>
       <div class="name">${s.name}</div>
     `;
 
-    /* DRAG FIX (world coordinates) */
-    el.onmousedown = (e) => {
-      dragStation = i;
+    el.onmousedown = () => {
+      drag = i;
     };
 
     el.ondblclick = () => {
@@ -229,69 +197,56 @@ function renderStations() {
   });
 }
 
-/* ================= GLOBAL DRAG ================= */
+/* ===== EVENTS ===== */
 window.addEventListener("mousemove", (e) => {
 
   /* drag station */
-  if (dragStation !== null) {
-
-    const wpos = toWorld(
-      e.clientX,
-      e.clientY - 56
-    );
-
-    stations[dragStation].x = wpos.x;
-    stations[dragStation].y = wpos.y;
+  if (drag !== null) {
+    stations[drag].x += e.movementX;
+    stations[drag].y += e.movementY;
 
     renderStations();
     renderLines();
   }
 
   /* pan */
-  if (e.buttons === 1 && dragStation === null) {
+  if (e.buttons === 1 && drag === null) {
     offsetX += e.movementX;
     offsetY += e.movementY;
 
     world.style.transform =
       `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
-
-    renderStations();
-    renderLines();
   }
 });
 
 window.addEventListener("mouseup", () => {
-  dragStation = null;
+  drag = null;
 });
 
-/* ================= ZOOM ================= */
+/* zoom */
 window.addEventListener("wheel", (e) => {
 
   const zoom = e.deltaY < 0 ? 1.1 : 0.9;
 
   scale *= zoom;
-  scale = Math.min(Math.max(0.5, scale), 2.5);
+  scale = Math.min(Math.max(0.5, scale), 3);
 
   world.style.transform =
     `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
-
-  renderStations();
-  renderLines();
 });
 
-/* ================= ACTIONS ================= */
+/* ===== ACTIONS ===== */
 function addStation() {
   stations.push({
     name: "Station",
-    x: 200,
-    y: 200,
-    color: "#3b82f6"
+    x: 200 + Math.random() * 300,
+    y: 200 + Math.random() * 300
   });
 
   renderStations();
 }
 
-/* ================= INIT ================= */
+/* ===== INIT ===== */
 drawGrid();
 renderStations();
 renderLines();
