@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8" />
-<title>Metro Editor Pro v3</title>
+<title>Metro Editor v4 (Fixed Grid)</title>
 
 <style>
 body {
@@ -74,10 +74,10 @@ path {
   fill: none;
 }
 
-/* DELETE MODE HIGHLIGHT */
-.delete-hover:hover circle {
-  fill: #ef4444;
-  stroke: #ef4444;
+/* GRID */
+.grid {
+  stroke: rgba(255,255,255,0.06);
+  stroke-width: 1;
 }
 </style>
 </head>
@@ -85,22 +85,18 @@ path {
 <body>
 
 <div id="toolbar">
-
   <button onclick="addStation()">➕ Станция</button>
   <button onclick="addLineMode()">➖ Линия</button>
-
-  <!-- 🎨 COLOR PICKER -->
-  <select id="colorPicker">
-    <option value="#3b82f6">Синяя линия</option>
-    <option value="#ef4444">Красная линия</option>
-    <option value="#22c55e">Зелёная линия</option>
-    <option value="#f59e0b">Оранжевая линия</option>
-  </select>
-
-  <button onclick="deleteMode()">🗑 Delete Mode</button>
+  <button onclick="deleteMode()">🗑 Delete</button>
   <button onclick="save()">💾 Save</button>
   <button onclick="load()">📂 Load</button>
 
+  <select id="colorPicker">
+    <option value="#3b82f6">Blue</option>
+    <option value="#ef4444">Red</option>
+    <option value="#22c55e">Green</option>
+    <option value="#f59e0b">Orange</option>
+  </select>
 </div>
 
 <div id="wrap">
@@ -108,6 +104,12 @@ path {
 </div>
 
 <script>
+
+/* ===================== */
+/* CORE SETTINGS */
+/* ===================== */
+
+const GRID = 50;
 
 let stations = [];
 let lines = [];
@@ -125,18 +127,69 @@ let selectedStations = [];
 
 const svg = document.getElementById("svg");
 
-/* ===== CURVE ===== */
-function curve(a, b) {
-  const dx = (b.x - a.x) / 2;
-  return `M ${a.x} ${a.y} C ${a.x + dx} ${a.y}, ${b.x - dx} ${b.y}, ${b.x} ${b.y}`;
+/* ===================== */
+/* SNAP SYSTEM */
+/* ===================== */
+
+function snap(v) {
+  return Math.round(v / GRID) * GRID;
 }
 
-/* ===== RENDER ===== */
+/* ===================== */
+/* GRID */
+/* ===================== */
+
+function drawGrid() {
+  const w = 3000;
+  const h = 2000;
+
+  for (let x = 0; x <= w; x += GRID) {
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("x1", x);
+    line.setAttribute("y1", 0);
+    line.setAttribute("x2", x);
+    line.setAttribute("y2", h);
+    line.classList.add("grid");
+    svg.appendChild(line);
+  }
+
+  for (let y = 0; y <= h; y += GRID) {
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("x1", 0);
+    line.setAttribute("y1", y);
+    line.setAttribute("x2", w);
+    line.setAttribute("y2", y);
+    line.classList.add("grid");
+    svg.appendChild(line);
+  }
+}
+
+/* ===================== */
+/* CURVE (FIXED SNAP) */
+/* ===================== */
+
+function curve(a, b) {
+  const ax = snap(a.x);
+  const ay = snap(a.y);
+  const bx = snap(b.x);
+  const by = snap(b.y);
+
+  const dx = (bx - ax) / 2;
+
+  return `M ${ax} ${ay} C ${ax + dx} ${ay}, ${bx - dx} ${by}, ${bx} ${by}`;
+}
+
+/* ===================== */
+/* RENDER */
+/* ===================== */
+
 function render() {
   svg.innerHTML = "";
 
   svg.style.transform =
     `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+
+  drawGrid();
 
   /* LINES */
   lines.forEach((l, idx) => {
@@ -147,9 +200,8 @@ function render() {
     const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
     path.setAttribute("d", curve(a, b));
     path.setAttribute("stroke", l.color);
-    path.setAttribute("data-index", idx);
 
-    /* 🗑 delete line */
+    /* delete line */
     path.onclick = () => {
       if (!deleteModeActive) return;
       lines.splice(idx, 1);
@@ -161,10 +213,9 @@ function render() {
 
   /* STATIONS */
   stations.forEach((s, i) => {
+
     const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
     g.classList.add("station");
-
-    if (deleteModeActive) g.classList.add("delete-hover");
 
     const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
     c.setAttribute("cx", s.x);
@@ -176,15 +227,11 @@ function render() {
     t.setAttribute("y", s.y + 5);
     t.textContent = s.name;
 
-    /* MOVE / LINE / DELETE */
     c.onmousedown = () => {
 
       if (deleteModeActive) {
         stations.splice(i, 1);
-
-        /* удалить связанные линии */
         lines = lines.filter(l => l.a !== i && l.b !== i);
-
         render();
         return;
       }
@@ -198,6 +245,7 @@ function render() {
             b: selectedStations[1],
             color: document.getElementById("colorPicker").value
           });
+
           selectedStations = [];
           render();
         }
@@ -207,7 +255,7 @@ function render() {
     };
 
     c.ondblclick = () => {
-      const name = prompt("Название:", s.name);
+      const name = prompt("Name:", s.name);
       if (name) {
         stations[i].name = name;
         render();
@@ -220,12 +268,15 @@ function render() {
   });
 }
 
-/* ===== EVENTS ===== */
+/* ===================== */
+/* EVENTS */
+/* ===================== */
+
 window.addEventListener("mousemove", (e) => {
 
   if (dragStation !== null) {
-    stations[dragStation].x += e.movementX / scale;
-    stations[dragStation].y += e.movementY / scale;
+    stations[dragStation].x = snap(stations[dragStation].x + e.movementX / scale);
+    stations[dragStation].y = snap(stations[dragStation].y + e.movementY / scale);
     render();
     return;
   }
@@ -244,9 +295,7 @@ window.addEventListener("mouseup", () => {
 
 /* PAN */
 document.getElementById("wrap").addEventListener("mousedown", (e) => {
-  if (e.target.tagName === "svg") {
-    isPanning = true;
-  }
+  if (e.target.tagName === "svg") isPanning = true;
 });
 
 /* ZOOM */
@@ -258,12 +307,15 @@ window.addEventListener("wheel", (e) => {
   render();
 });
 
-/* ===== ACTIONS ===== */
+/* ===================== */
+/* ACTIONS */
+/* ===================== */
+
 function addStation() {
   stations.push({
     name: "Station",
-    x: 300 + Math.random() * 500,
-    y: 200 + Math.random() * 300
+    x: snap(300 + Math.random() * 500),
+    y: snap(200 + Math.random() * 300)
   });
   render();
 }
@@ -271,21 +323,24 @@ function addStation() {
 function addLineMode() {
   lineMode = !lineMode;
   selectedStations = [];
-  alert(lineMode ? "Режим линий включён" : "Режим линий выключен");
+  alert(lineMode ? "Line mode ON" : "Line mode OFF");
 }
 
 function deleteMode() {
   deleteModeActive = !deleteModeActive;
-  alert(deleteModeActive ? "Delete Mode ON" : "Delete Mode OFF");
+  alert(deleteModeActive ? "Delete ON" : "Delete OFF");
 }
 
-/* ===== SAVE / LOAD ===== */
+/* ===================== */
+/* SAVE / LOAD */
+/* ===================== */
+
 function save() {
-  localStorage.setItem("metro_v3", JSON.stringify({stations, lines}));
+  localStorage.setItem("metro_v4", JSON.stringify({stations, lines}));
 }
 
 function load() {
-  const data = localStorage.getItem("metro_v3");
+  const data = localStorage.getItem("metro_v4");
   if (data) {
     const obj = JSON.parse(data);
     stations = obj.stations || [];
