@@ -34,7 +34,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px 20px 0;
+            padding: 0;
             position: relative;
         }
 
@@ -57,7 +57,7 @@
         /* Диагональные "опасные" полосы конструктивизма — верх и низ экрана */
         .hazard-strip {
             width: 100%;
-            max-width: 1200px;
+            max-width: none;
             height: 10px;
             background: repeating-linear-gradient(135deg, var(--red-primary) 0px, var(--red-primary) 22px, var(--gold) 22px, var(--gold) 26px, var(--bg-black) 26px, var(--bg-black) 48px);
             box-shadow: 0 0 20px rgba(204,34,34,0.5);
@@ -67,11 +67,14 @@
         .hazard-strip.bottom { margin-bottom: 24px; }
 
         .container {
-            max-width: 1200px;
+            max-width: none;
             width: 100%;
+            min-height: 100vh;
             background: rgba(20, 8, 8, 0.85);
             border: 3px solid var(--red-primary);
-            border-radius: 4px;
+            border-left: none;
+            border-right: none;
+            border-radius: 0;
             box-shadow: 0 0 40px rgba(180, 20, 20, 0.5), inset 0 0 30px rgba(100, 10, 10, 0.3);
             padding: 0 20px 30px;
             backdrop-filter: blur(2px);
