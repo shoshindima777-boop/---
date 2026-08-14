@@ -34,7 +34,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 0;
+            padding: 20px 20px 0;
             position: relative;
         }
 
@@ -56,8 +56,8 @@
 
         /* Диагональные "опасные" полосы конструктивизма — верх и низ экрана */
         .hazard-strip {
-            width: 100%;
-            max-width: none;
+            width: 96%;
+            max-width: 1800px;
             height: 10px;
             background: repeating-linear-gradient(135deg, var(--red-primary) 0px, var(--red-primary) 22px, var(--gold) 22px, var(--gold) 26px, var(--bg-black) 26px, var(--bg-black) 48px);
             box-shadow: 0 0 20px rgba(204,34,34,0.5);
@@ -67,20 +67,23 @@
         .hazard-strip.bottom { margin-bottom: 24px; }
 
         .container {
-            max-width: none;
-            width: 100%;
-            min-height: 100vh;
+            max-width: 1800px;
+            width: 96%;
             background: rgba(20, 8, 8, 0.85);
             border: 3px solid var(--red-primary);
-            border-left: none;
-            border-right: none;
-            border-radius: 0;
+            border-radius: 4px;
             box-shadow: 0 0 40px rgba(180, 20, 20, 0.5), inset 0 0 30px rgba(100, 10, 10, 0.3);
-            padding: 0 20px 30px;
+            padding: 0 40px 30px;
             backdrop-filter: blur(2px);
             position: relative;
             overflow: hidden;
             z-index: 1;
+        }
+
+        @media (min-width: 1000px) {
+            .constitution-wrapper { columns: 1; }
+            section p, section li { max-width: 1100px; }
+            .about-columns, .constitution-preamble { max-width: 1100px; }
         }
 
         .container::after {
@@ -493,6 +496,114 @@
             z-index: 2;
         }
 
+        /* ==================== ЭФФЕКТ СТАРОГО ТЕЛЕВИЗОРА ==================== */
+
+        .crt-scanlines {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9997;
+            background: repeating-linear-gradient(
+                to bottom,
+                rgba(0, 0, 0, 0) 0px,
+                rgba(0, 0, 0, 0.18) 1px,
+                rgba(0, 0, 0, 0.18) 2px,
+                rgba(0, 0, 0, 0) 3px
+            );
+            mix-blend-mode: multiply;
+        }
+
+        .crt-rollbar {
+            position: fixed;
+            left: 0;
+            right: 0;
+            height: 140px;
+            pointer-events: none;
+            z-index: 9998;
+            background: linear-gradient(
+                to bottom,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 235, 190, 0.06) 45%,
+                rgba(255, 255, 255, 0.1) 50%,
+                rgba(255, 235, 190, 0.06) 55%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            mix-blend-mode: screen;
+            animation: rollbarMove 11s linear infinite;
+        }
+
+        @keyframes rollbarMove {
+            0% { top: -140px; }
+            100% { top: 100vh; }
+        }
+
+        .crt-noise {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9996;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 3px 3px;
+            opacity: 0.5;
+            animation: noiseShift 0.18s steps(4) infinite;
+        }
+
+        @keyframes noiseShift {
+            0% { background-position: 0 0; }
+            25% { background-position: 1px 2px; }
+            50% { background-position: -1px 1px; }
+            75% { background-position: 2px -1px; }
+            100% { background-position: 0 0; }
+        }
+
+        .crt-vignette {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9999;
+            border-radius: 46px;
+            box-shadow:
+                inset 0 0 160px 70px rgba(0, 0, 0, 0.82),
+                inset 3px 0 6px rgba(255, 0, 70, 0.12),
+                inset -3px 0 6px rgba(0, 220, 255, 0.1);
+        }
+
+        .crt-flicker {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9995;
+            background: #000;
+            opacity: 0;
+            animation: crtFlicker 6.5s infinite;
+        }
+
+        @keyframes crtFlicker {
+            0%, 96%, 100% { opacity: 0; }
+            96.5% { opacity: 0.06; }
+            97% { opacity: 0; }
+            97.5% { opacity: 0.1; }
+            98% { opacity: 0; }
+            98.4% { opacity: 0.04; }
+            98.7% { opacity: 0; }
+        }
+
+        body.crt-on {
+            animation: crtBodyFlicker 7s infinite;
+        }
+
+        @keyframes crtBodyFlicker {
+            0%, 100% { filter: brightness(1) contrast(1.03); }
+            50% { filter: brightness(1) contrast(1.03); }
+            96% { filter: brightness(1.04) contrast(1.05); }
+            96.5% { filter: brightness(0.94) contrast(1.03); }
+            97% { filter: brightness(1) contrast(1.03); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .crt-rollbar, .crt-noise, .crt-flicker, body.crt-on { animation: none; }
+        }
+
         /* Адаптив */
         @media (max-width: 700px) {
             .title-group h1 { font-size: 2rem; letter-spacing: 3px; }
@@ -511,7 +622,12 @@
         }
     </style>
 </head>
-<body>
+<body class="crt-on">
+    <div class="crt-scanlines"></div>
+    <div class="crt-noise"></div>
+    <div class="crt-rollbar"></div>
+    <div class="crt-flicker"></div>
+    <div class="crt-vignette"></div>
     <div class="hazard-strip top"></div>
     <div class="container">
         <div class="star-ornament"><i class="fas fa-star"></i></div>
