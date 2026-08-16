@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>КПРС — Коммунистический пролетарский революционный союз</title>
+    <title>КПРС — Вход в Союз</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=PT+Serif:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <style>
+        /* ================== ОБЩИЕ СТИЛИ ================== */
         :root {
             --bg-black: #0c0604;
             --bg-maroon: #2a0e0e;
@@ -21,12 +22,134 @@
         }
 
         html { scroll-behavior: smooth; }
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
+        /* ================== СТИЛИ ЗАСТАВКИ (ВХОДНОЙ СТРАНИЦЫ) ================== */
+        #splash-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100vh;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7)), url('poster.jpg');
+            background-size: cover;
+            background-position: center;
+            transition: opacity 1s ease, transform 1s ease;
+            overflow: hidden;
+        }
+
+        /* Эффект старой бумаги на заставке */
+        #splash-screen::before {
+            content: '';
+            position: absolute; inset: 0;
+            background-image:
+                radial-gradient(ellipse at 15% 20%, rgba(210, 180, 140, 0.25) 0%, transparent 60%),
+                repeating-linear-gradient(45deg, rgba(200, 170, 130, 0.04) 0px, rgba(200, 170, 130, 0.04) 2px, transparent 2px, transparent 5px);
+            pointer-events: none;
+            mix-blend-mode: overlay;
+            opacity: 0.4;
+        }
+
+        /* Класс для скрытия заставки */
+        #splash-screen.hidden {
+            opacity: 0;
+            transform: scale(1.05);
+            pointer-events: none;
+        }
+
+        .splash-content {
+            text-align: center;
+            z-index: 2;
+            position: relative;
+            padding: 40px;
+        }
+
+        .splash-content h1 {
+            font-family: 'Oswald', sans-serif;
+            font-size: 5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 10px;
+            color: var(--gold);
+            text-shadow: 0 0 20px #ffd700, 0 0 40px #ff8800, 0 0 80px #ff4400;
+            margin-bottom: 10px;
+            background: linear-gradient(180deg, #ffd700, #e6a800);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: goldPulse 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes goldPulse {
+            0% { text-shadow: 0 0 20px #ffd700, 0 0 40px #ff8800; }
+            100% { text-shadow: 0 0 40px #ffd700, 0 0 80px #ff8800, 0 0 120px #ff4400; }
+        }
+
+        .splash-content .subtitle {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.5rem;
+            letter-spacing: 6px;
+            color: var(--cream);
+            background: rgba(10, 4, 4, 0.6);
+            padding: 8px 20px;
+            display: inline-block;
+            border: 1px solid rgba(255, 215, 0, 0.4);
+            margin-bottom: 20px;
+        }
+
+        .splash-content .slogan {
+            font-family: 'PT Serif', serif;
+            font-size: 1.8rem;
+            color: #fff;
+            margin-bottom: 50px;
+            text-shadow: 0 2px 10px #000;
+            letter-spacing: 3px;
+        }
+
+        /* ГЛАВНАЯ КНОПКА ПЕРЕХОДА */
+        #enter-btn {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            padding: 20px 60px;
+            background: var(--red-primary);
+            color: var(--gold);
+            border: 2px solid var(--gold);
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(204, 34, 34, 0.6), inset 0 0 15px rgba(255, 215, 0, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            animation: btnPulse 2s ease-in-out infinite;
+        }
+
+        #enter-btn:hover {
+            transform: translateY(-4px) scale(1.05);
+            background: #cc2222;
+            box-shadow: 0 0 40px rgba(204, 34, 34, 0.9), 0 0 80px rgba(255, 215, 0, 0.4);
+        }
+
+        #enter-btn:active {
+            transform: scale(0.95);
+        }
+
+        @keyframes btnPulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(204, 34, 34, 0.6), inset 0 0 15px rgba(255, 215, 0, 0.2); }
+            50% { box-shadow: 0 0 40px rgba(204, 34, 34, 0.9), 0 0 60px rgba(255, 215, 0, 0.5); }
+        }
+
+        /* ================== СТИЛИ ОСНОВНОГО САЙТА ================== */
         body {
-            background: var(--bg-black);
-            background-image: radial-gradient(circle at 20% 30%, #2f1212 0%, #0d0505 100%);
+            /* Фоновый постер с затемнением для читаемости */
+            background: linear-gradient(rgba(12, 6, 4, 0.4), rgba(12, 6, 4, 0.4)), url('poster.jpg');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
             color: var(--text);
             font-family: 'PT Serif', 'Segoe UI', serif;
             line-height: 1.6;
@@ -52,10 +175,10 @@
             pointer-events: none;
             z-index: 0;
             mix-blend-mode: overlay;
-            opacity: 0.7;
+            opacity: 0.4;
         }
 
-        /* Псевдоэлемент для глитч-оверлея (активируется при сильном глитче) */
+        /* Псевдоэлемент для глитч-оверлея */
         body::after {
             content: '';
             position: fixed;
@@ -84,7 +207,7 @@
             100% { background-position: 0 0, 0 0; filter: hue-rotate(0deg); }
         }
 
-        /* Диагональные "опасные" полосы конструктивизма — верх и низ экрана */
+        /* Диагональные "опасные" полосы */
         .hazard-strip {
             width: 96%;
             max-width: 1800px;
@@ -148,44 +271,6 @@
             z-index: 2;
         }
 
-        .emblem-wrap {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 50% 40%, #3a1414, #150606 75%);
-            border: 3px solid var(--gold);
-            box-shadow:
-                0 0 0 6px rgba(166,28,28,0.5),
-                0 0 30px rgba(255,215,0,0.45),
-                inset 0 0 25px rgba(0,0,0,0.6);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 18px;
-            position: relative;
-            animation: emblemGlow 3s ease-in-out infinite alternate, emblemShake 0.1s linear infinite;
-        }
-
-        @keyframes emblemGlow {
-            0% { box-shadow: 0 0 0 6px rgba(166,28,28,0.5), 0 0 20px rgba(255,215,0,0.35), inset 0 0 25px rgba(0,0,0,0.6); }
-            100% { box-shadow: 0 0 0 6px rgba(166,28,28,0.7), 0 0 45px rgba(255,215,0,0.6), inset 0 0 25px rgba(0,0,0,0.6); }
-        }
-
-        @keyframes emblemShake {
-            0% { transform: translate(0, 0) rotate(0deg); }
-            25% { transform: translate(0.5px, -0.5px) rotate(0.05deg); }
-            50% { transform: translate(-0.5px, 0.5px) rotate(-0.05deg); }
-            75% { transform: translate(0.3px, 0.3px) rotate(0.02deg); }
-            100% { transform: translate(0, 0) rotate(0deg); }
-        }
-
-        .emblem-wrap img {
-            width: 78%;
-            height: 78%;
-            object-fit: contain;
-            filter: drop-shadow(0 0 10px rgba(255,215,0,0.5));
-        }
-
         .title-group { text-align: center; }
 
         .title-group h1 {
@@ -206,12 +291,6 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
             animation: goldPulse 2.5s ease-in-out infinite alternate, glitchTitle 4s infinite;
-            position: relative;
-        }
-
-        @keyframes goldPulse {
-            0% { text-shadow: 0 0 10px #ffd700, 0 0 20px #ffaa00, 0 0 40px #ff8800, 0 0 60px #ff4400; }
-            100% { text-shadow: 0 0 20px #ffd700, 0 0 40px #ffaa00, 0 0 80px #ff8800, 0 0 120px #ff4400, 0 0 180px #ff2200; }
         }
 
         @keyframes glitchTitle {
@@ -228,11 +307,11 @@
 
         .title-group .subhead {
             font-family: 'Oswald', sans-serif;
-            font-size: 1.05rem;
+            font-size: 1.3rem;
             letter-spacing: 5px;
             color: #cfcfcf;
             background: rgba(150, 20, 20, 0.4);
-            padding: 6px 20px;
+            padding: 10px 30px;
             border-radius: 2px;
             display: inline-block;
             border: 1px solid var(--red-primary);
@@ -794,7 +873,6 @@
         }
 
         body.crt-on {
-            /* Мерцание больше не задаётся постоянно, т.к. конфликтует с глитчами */
             /* animation: crtBodyFlicker 7s infinite; */
         }
 
@@ -807,19 +885,22 @@
         }
 
         @media (prefers-reduced-motion: reduce) {
-            .crt-rollbar, .crt-noise, .crt-flicker, body.crt-on, body.glitch-soft, body.glitch-hard, .hazard-strip, .emblem-wrap, .title-group h1, .slogan, .project-card:hover, section:hover { animation: none !important; }
+            .crt-rollbar, .crt-noise, .crt-flicker, body.crt-on, body.glitch-soft, body.glitch-hard, .hazard-strip, .title-group h1, .slogan, .project-card:hover, section:hover { animation: none !important; }
         }
 
         /* Адаптив */
         @media (max-width: 700px) {
+            .splash-content h1 { font-size: 3.5rem; }
+            .splash-content .slogan { font-size: 1.2rem; }
+            #enter-btn { font-size: 1.2rem; padding: 15px 30px; }
             .title-group h1 { font-size: 2rem; letter-spacing: 3px; }
+            .title-group .subhead { font-size: 1.1rem; letter-spacing: 3px; }
             .slogan { font-size: 1.15rem; }
             .container { padding: 0 10px 20px; }
             section { padding: 14px 16px; }
             .chapter-block summary { font-size: 1rem; padding: 10px 14px; }
             .projects-grid { grid-template-columns: 1fr 1fr; }
             .nav-wrapper .nav-label { font-size: 1rem; }
-            .emblem-wrap { width: 110px; height: 110px; }
         }
 
         @media (max-width: 480px) {
@@ -829,278 +910,331 @@
     </style>
 </head>
 <body class="crt-on">
-    <div class="crt-scanlines"></div>
-    <div class="crt-noise"></div>
-    <div class="crt-rollbar"></div>
-    <div class="crt-flicker"></div>
-    <div class="crt-vignette"></div>
-    <div class="hazard-strip top"></div>
-    <div class="container">
-        <div class="star-ornament"><i class="fas fa-star"></i></div>
-
-        <!-- ШАПКА -->
-        <header class="header">
-            <div class="emblem-wrap">
-                <!-- !!! ЗДЕСЬ ЗАМЕНЕНА ЭМБЛЕМА !!! -->
-                <img src="emblem.png" alt="Герб КПРС" />
-            </div>
-            <div class="title-group">
-                <h1>КПРС</h1>
-                <div class="subhead">Коммунистический пролетарский революционный союз</div>
-            </div>
-            <div class="slogan">
-                <i class="fas fa-star" style="font-size:1.1rem; margin-right:10px;"></i>
-                Пролетарии всех миров, соединяйтесь!
-                <i class="fas fa-star" style="font-size:1.1rem; margin-left:10px;"></i>
-            </div>
-        </header>
-
-        <!-- НАВИГАЦИЯ -->
-        <div class="nav-wrapper">
-            <div class="nav-label"><i class="fas fa-bars" style="margin-right:10px;"></i> Разделы сайта</div>
-            <nav class="nav" id="siteNav">
-                <button class="nav-btn" type="button" data-target="about"><i class="fas fa-info-circle"></i> О нас</button>
-                <button class="nav-btn" type="button" data-target="constitution"><i class="fas fa-gavel"></i> Конституция</button>
-                <button class="nav-btn" type="button" data-target="membership"><i class="fas fa-users"></i> Вступление</button>
-                <button class="nav-btn" type="button" data-target="projects"><i class="fas fa-hammer"></i> Проекты</button>
-            </nav>
+    
+    <!-- ========================================================== -->
+    <!-- ЗАСТАВКА (ВХОДНАЯ СТРАНИЦА) -->
+    <!-- ========================================================== -->
+    <div id="splash-screen">
+        <div class="splash-content">
+            <h1>КПРС</h1>
+            <div class="subtitle">Коммунистический пролетарский революционный союз</div>
+            <div class="slogan">ЕДИНСТВО. ТРУД. ПРОГРЕСС.</div>
+            <!-- Кнопка для перехода на основную страницу -->
+            <button id="enter-btn">
+                <i class="fas fa-hammer" style="margin-right: 12px;"></i> ВОЙТИ В СОЮЗ
+            </button>
         </div>
-
-        <!-- О НАС -->
-        <section id="about">
-            <h2><i class="fas fa-flag"></i> О Союзе</h2>
-            <p><strong>КПРС</strong> — это организация коммунистов на сервере <strong>SPLIN SMP</strong>. Мы являемся унитарным государством с <strong>социализмом с китайской спецификой</strong>. Государство собралось ради единой цели — <strong>строительство метро</strong>.</p>
-            <p>Мы объединили усилия для создания грандиозной подземной транспортной системы, которая свяжет все уголки нашего мира. Каждый участник вносит свой вклад в общее дело: добывает ресурсы, проектирует тоннели, строит станции и обеспечивает бесперебойную работу метрополитена. Наш труд — это фундамент процветания и мобильности всего Союза.</p>
-            <div class="quote-block">
-                <i class="fas fa-quote-left"></i>
-                «Метро — это артерия нашего государства. Вместе мы проложим путь к светлому будущему!»
-            </div>
-            <p>Мы против частной собственности на землю и ресурсы. Все постройки, фермы, шахты и инфраструктура принадлежат Союзу и служат трудящимся. Каждый игрок вносит вклад в общее дело и получает по потребностям.</p>
-        </section>
-
-        <!-- КОНСТИТУЦИЯ -->
-        <section id="constitution">
-            <h2><i class="fas fa-scroll"></i> Конституция КПРС</h2>
-            <div class="constitution-wrapper">
-
-                <div class="constitution-preamble">
-                    <p><strong>Преамбула</strong></p>
-                    <p>Мы, граждане Коммунистического Пролетарского Революционного Союза, руководствуясь идеалами социальной справедливости, коллективизма, равенства, взаимного уважения и товарищества, принимаем настоящую Конституцию.</p>
-                    <p>Учреждая единое социалистическое государство, мы стремимся обеспечить благополучие общества, развитие коллективного труда, защиту достоинства каждого гражданина и создание условий, при которых каждый сможет участвовать в жизни государства и вносить вклад в его развитие.</p>
-                    <p>Настоящая Конституция является Основным законом КПРС и обладает высшей юридической силой на всей территории Союза.</p>
-                    <hr style="border-color:#5f2a2a; margin:12px 0;" />
-                </div>
-
-                <details class="chapter-block">
-                    <summary>Глава I. Основы конституционного строя</summary>
-                    <div class="chapter-content">
-                        <div class="article">
-                            <strong>Статья 1. Государство</strong>
-                            <p>Коммунистический Пролетарский Революционный Союз (КПРС) является единым унитарным социалистическим государством.</p>
-                            <p>Источником государственной власти являются граждане КПРС.</p>
-                            <p>Государственная власть осуществляется на основе принципов дисциплинарной советской демократии, законности, коллективной ответственности и общественного контроля.</p>
-                        </div>
-                        <div class="article">
-                            <strong>Статья 2. Основы общественного строя</strong>
-                            <p>Основу общества составляют коллективный труд, общественная солидарность и взаимопомощь.</p>
-                            <p>Средства производства и государственные проекты находятся в коллективном пользовании либо под государственным управлением.</p>
-                            <p>Эксплуатация человека человеком запрещается.</p>
-                        </div>
-                        <div class="article">
-                            <strong>Статья 3. Территория государства</strong>
-                            <p>Территория КПРС является единой и неделимой.</p>
-                            <p>Государство состоит из административно-территориальных единиц.</p>
-                            <p>Органы местного управления действуют в пределах полномочий, предоставленных им законами КПРС.</p>
-                            <p>Ни одна административная единица не обладает государственным суверенитетом и не имеет права выхода из состава Союза.</p>
-                        </div>
-                    </div>
-                </details>
-
-                <details class="chapter-block">
-                    <summary>Глава II. Права и обязанности граждан</summary>
-                    <div class="chapter-content">
-                        <div class="article">
-                            <strong>Статья 4. Основные права граждан</strong>
-                            <p>Каждый гражданин КПРС имеет право:</p>
-                            <ul>
-                                <li>на труд и справедливое распределение результатов коллективной деятельности;</li>
-                                <li>на отдых;</li>
-                                <li>на участие в управлении государством непосредственно либо через органы власти;</li>
-                                <li>на свободу совести, убеждений, слова и объединений, если их осуществление не наносит ущерба государству и обществу;</li>
-                                <li>на создание профессиональных союзов;</li>
-                                <li>на уважение своего достоинства и защиту законных интересов.</li>
-                            </ul>
-                        </div>
-                        <div class="article">
-                            <strong>Статья 5. Основные обязанности граждан</strong>
-                            <p>Каждый гражданин обязан:</p>
-                            <ul>
-                                <li>соблюдать Конституцию и законы КПРС;</li>
-                                <li>уважать права и достоинство других граждан;</li>
-                                <li>участвовать в общественной жизни государства;</li>
-                                <li>бережно относиться к общественному имуществу;</li>
-                                <li>защищать свободу, независимость и интересы КПРС;</li>
-                                <li>добросовестно исполнять свои обязанности перед обществом.</li>
-                            </ul>
-                        </div>
-                    </div>
-                </details>
-
-                <details class="chapter-block">
-                    <summary>Глава III. Государственная власть</summary>
-                    <div class="chapter-content">
-                        <div class="article">
-                            <strong>Статья 6. Генеральный секретарь</strong>
-                            <p>Генеральный секретарь КПРС является главой государства и высшим должностным лицом Союза.</p>
-                            <p>Генеральный секретарь избирается гражданами КПРС на неопределённый срок до принятия решения о его переизбрании.</p>
-                            <p>Генеральный секретарь:</p>
-                            <ul>
-                                <li>определяет основные направления развития государства;</li>
-                                <li>координирует деятельность органов власти;</li>
-                                <li>представляет КПРС во внешних отношениях;</li>
-                                <li>обеспечивает соблюдение Конституции.</li>
-                            </ul>
-                            <p>Генеральный секретарь обладает высшими государственными полномочиями и несёт ответственность перед гражданами КПРС.</p>
-                        </div>
-                        <div class="article">
-                            <strong>Статья 7. Председатель Совета Министров</strong>
-                            <p>Председатель Совета Министров является заместителем Генерального секретаря.</p>
-                            <p>Он организует работу исполнительных органов власти.</p>
-                            <p>В случае отсутствия Генерального секретаря временно исполняет его полномочия.</p>
-                        </div>
-                        <div class="article">
-                            <strong>Статья 8. Пресс-секретарь</strong>
-                            <p>Пресс-секретарь обеспечивает информационную политику государства.</p>
-                            <p>Организует взаимодействие органов власти с гражданами.</p>
-                            <p>Руководит государственными информационными и общественными проектами.</p>
-                        </div>
-                        <div class="article">
-                            <strong>Статья 9. Государственный аппарат</strong>
-                            <p>Государственный аппарат состоит из комитетов и иных органов управления.</p>
-                            <p>Руководители комитетов назначаются в порядке, установленном законодательством КПРС.</p>
-                            <p>Государственный аппарат обеспечивает исполнение решений органов власти.</p>
-                        </div>
-                    </div>
-                </details>
-
-                <details class="chapter-block">
-                    <summary>Глава IV. Социальные классы</summary>
-                    <div class="chapter-content">
-                        <div class="article">
-                            <strong>Статья 10. Труженики</strong>
-                            <p>Основу общества составляют труженики.</p>
-                            <p>К ним относятся граждане, занятые в промышленности, строительстве, сельском хозяйстве, культуре, науке и иных сферах общественно полезной деятельности.</p>
-                            <p>Труженики обладают равными политическими правами.</p>
-                        </div>
-                        <div class="article">
-                            <strong>Статья 11. Рабочие</strong>
-                            <p>Рабочие являются основной производительной силой государства.</p>
-                            <p>Государство гарантирует защиту их трудовых прав и интересов.</p>
-                        </div>
-                        <div class="article">
-                            <strong>Статья 12. Крестьяне</strong>
-                            <p>Крестьяне обеспечивают развитие сельского хозяйства и продовольственную безопасность.</p>
-                            <p>Государство оказывает им всестороннюю поддержку.</p>
-                        </div>
-                        <div class="article">
-                            <strong>Статья 13. Представители иных государств</strong>
-                            <p>Представители других кланов и государств могут находиться на территории КПРС в качестве гостей или наблюдателей.</p>
-                            <p>Их статус определяется законами и международными соглашениями КПРС.</p>
-                        </div>
-                        <div class="article">
-                            <strong>Статья 14. Особое формирование «Дурка»</strong>
-                            <p>Формирование «Дурка» является специальным государственным учреждением социальной поддержки.</p>
-                            <p>Его деятельность осуществляется на принципах гуманизма, добровольности и уважения личности.</p>
-                            <p>Формирование находится под непосредственным контролем Генерального секретаря и органов государственной власти.</p>
-                        </div>
-                    </div>
-                </details>
-
-                <details class="chapter-block">
-                    <summary>Глава V. Основы управления</summary>
-                    <div class="chapter-content">
-                        <div class="article">
-                            <strong>Статья 15. Дисциплинарная советская демократия</strong>
-                            <p>Важнейшие вопросы государственной жизни обсуждаются гражданами КПРС.</p>
-                            <p>Решения принимаются посредством голосования, если иное не установлено настоящей Конституцией.</p>
-                            <p>Государственные органы обязаны учитывать мнение граждан.</p>
-                        </div>
-                        <div class="article">
-                            <strong>Статья 16. Законность</strong>
-                            <p>Государственная власть осуществляется исключительно на основании Конституции и законов.</p>
-                            <p>Запрещаются произвол, репрессии и незаконное применение силы.</p>
-                            <p>Все граждане равны перед законом.</p>
-                        </div>
-                        <div class="article">
-                            <strong>Статья 17. Экономическая система</strong>
-                            <p>Экономика КПРС основывается на принципах государственного планирования и коллективного труда.</p>
-                            <p>Государственные ресурсы используются исключительно в интересах общества.</p>
-                            <p>Развитие науки, промышленности, строительства и сельского хозяйства является приоритетом государственной политики.</p>
-                        </div>
-                    </div>
-                </details>
-
-                <details class="chapter-block">
-                    <summary>Глава VI. Заключительные положения</summary>
-                    <div class="chapter-content">
-                        <div class="article">
-                            <strong>Статья 18. Изменение Конституции</strong>
-                            <p>Конституция может быть изменена или дополнена по решению граждан КПРС.</p>
-                            <p>Изменения вступают в силу после их официального утверждения Генеральным секретарём.</p>
-                        </div>
-                        <div class="article">
-                            <strong>Статья 19. Вступление Конституции в силу</strong>
-                            <p>Настоящая Конституция вступает в силу с момента её официального утверждения.</p>
-                        </div>
-                        <div style="margin-top:16px; border-top:1px solid #5f2a2a; padding-top:12px; font-style:italic; color:#bb9988;">
-                            <p>Настоящая Конституция принята гражданами Коммунистического Пролетарского Революционного Союза и утверждена Генеральным секретарём КПРС.</p>
-                            <p style="margin-top:4px;"><strong>Генеральный секретарь КПРС</strong><br />Ssmoyg</p>
-                        </div>
-                    </div>
-                </details>
-
-            </div>
-        </section>
-
-        <!-- ВСТУПЛЕНИЕ -->
-        <section id="membership">
-            <h2><i class="fas fa-handshake"></i> Как вступить в КПРС?</h2>
-            <p>Чтобы вступить в КПРС, необходимо зайти на сервер в <strong>Discord</strong> и быть активным на <strong>острове КПРС</strong>. После этого вы сможете быстро продвинуться по званиям.</p>
-            <p>Присоединяйтесь к нашему сообществу, участвуйте в жизни государства и вносите вклад в общие проекты. Чем активнее вы помогаете Союзу, тем быстрее растёт ваш статус и открываются новые возможности.</p>
-            <div class="quote-block">
-                <i class="fas fa-star"></i>
-                «Активность на острове — ключ к признанию и росту. Вместе мы построим метро и укрепим нашу державу!»
-            </div>
-        </section>
-
-        <!-- ПРОЕКТЫ -->
-        <section id="projects">
-            <h2><i class="fas fa-hammer"></i> Проекты КПРС</h2>
-            <p style="margin-bottom: 12px;">Перечень основных строек и программ Союза:</p>
-            <div class="projects-grid">
-                <div class="project-card"><h4>Метрополитен</h4></div>
-                <div class="project-card"><h4>Остров</h4></div>
-                <div class="project-card"><h4>Водохранилища</h4></div>
-                <div class="project-card"><h4>Батареи орудий</h4></div>
-                <div class="project-card"><h4>ПВО Союза</h4></div>
-                <div class="project-card"><h4>Стены острова</h4></div>
-                <div class="project-card"><h4>Космическая программа</h4></div>
-                <div class="project-card"><h4>Ядерная программа</h4></div>
-            </div>
-        </section>
-
-        <!-- Подвал -->
-        <footer class="footer">
-            <span><i class="fas fa-copyright"></i> 2026 <span class="gold">КПРС</span> — Коммунистический пролетарский революционный союз</span>
-            <span>Построен трудом <strong>пролетариев Minecraft</strong></span>
-            <span><i class="fas fa-star"></i> #Солидарность #Труд #Справедливость</span>
-        </footer>
     </div>
-    <div class="hazard-strip bottom"></div>
+
+    <!-- ========================================================== -->
+    <!-- ОСНОВНАЯ СТРАНИЦА (СКРЫТА ПО УМОЛЧАНИЮ) -->
+    <!-- ========================================================== -->
+    <div id="main-site" style="display: none;">
+        <div class="crt-scanlines"></div>
+        <div class="crt-noise"></div>
+        <div class="crt-rollbar"></div>
+        <div class="crt-flicker"></div>
+        <div class="crt-vignette"></div>
+        <div class="hazard-strip top"></div>
+        <div class="container">
+            <div class="star-ornament"><i class="fas fa-star"></i></div>
+
+            <!-- ШАПКА -->
+            <header class="header">
+                <div class="title-group">
+                    <h1>КПРС</h1>
+                    <div class="subhead">Коммунистический пролетарский революционный союз</div>
+                </div>
+                <div class="slogan">
+                    <i class="fas fa-star" style="font-size:1.1rem; margin-right:10px;"></i>
+                    Пролетарии всех миров, соединяйтесь!
+                    <i class="fas fa-star" style="font-size:1.1rem; margin-left:10px;"></i>
+                </div>
+            </header>
+
+            <!-- НАВИГАЦИЯ -->
+            <div class="nav-wrapper">
+                <div class="nav-label"><i class="fas fa-bars" style="margin-right:10px;"></i> Разделы сайта</div>
+                <nav class="nav" id="siteNav">
+                    <button class="nav-btn" type="button" data-target="home"><i class="fas fa-home"></i> Главная</button>
+                    <button class="nav-btn" type="button" data-target="about"><i class="fas fa-info-circle"></i> О нас</button>
+                    <button class="nav-btn" type="button" data-target="constitution"><i class="fas fa-gavel"></i> Конституция</button>
+                    <button class="nav-btn" type="button" data-target="membership"><i class="fas fa-users"></i> Вступление</button>
+                    <button class="nav-btn" type="button" data-target="projects"><i class="fas fa-hammer"></i> Проекты</button>
+                </nav>
+            </div>
+
+            <!-- ГЛАВНАЯ -->
+            <section id="home">
+                <h2><i class="fas fa-flag"></i> Добро пожаловать в КПРС!</h2>
+                <div style="background: rgba(0, 0, 0, 0.4); padding: 12px; border: 1px solid var(--gold); border-radius: 4px; margin-bottom: 12px; text-align: center; font-size: 1.4rem; color: var(--gold); letter-spacing: 3px;">
+                    ЕДИНСТВО. ТРУД. ПРОГРЕСС.
+                </div>
+                <p>Добро пожаловать в <strong>Коммунистический пролетарский революционный союз</strong> — величайшее объединение трудящихся на сервере <strong>SPLIN SMP</strong>!</p>
+                <p><strong>КПРС</strong> — это не просто организация, это семья единомышленников, объединённых одной грандиозной целью: построить великий <strong>Метрополитен</strong>, который свяжет каждый уголок нашего мира.</p>
+                <p>Здесь нет места частной собственности. Все ресурсы, фермы, заводы и шахты принадлежат народу. Каждый труженик вносит свой вклад в общее дело и получает по заслугам. Мы строим социализм с китайской спецификой прямо здесь, в Minecraft.</p>
+                <div class="quote-block">
+                    <i class="fas fa-star"></i>
+                    «Наш путь начался здесь. Вместе мы проложим рельсы в светлое будущее! Присоединяйся к строительству!»
+                </div>
+            </section>
+
+            <!-- О НАС -->
+            <section id="about">
+                <h2><i class="fas fa-info-circle"></i> О Союзе</h2>
+                <p><strong>КПРС</strong> — это организация коммунистов на сервере <strong>SPLIN SMP</strong>. Мы являемся унитарным государством с <strong>социализмом с китайской спецификой</strong>. Государство собралось ради единой цели — <strong>строительство метро</strong>.</p>
+                <p>Мы объединили усилия для создания грандиозной подземной транспортной системы, которая свяжет все уголки нашего мира. Каждый участник вносит свой вклад в общее дело: добывает ресурсы, проектирует тоннели, строит станции и обеспечивает бесперебойную работу метрополитена. Наш труд — это фундамент процветания и мобильности всего Союза.</p>
+                <div class="quote-block">
+                    <i class="fas fa-quote-left"></i>
+                    «Метро — это артерия нашего государства. Вместе мы проложим путь к светлому будущему!»
+                </div>
+                <p>Мы против частной собственности на землю и ресурсы. Все постройки, фермы, шахты и инфраструктура принадлежат Союзу и служат трудящимся. Каждый игрок вносит вклад в общее дело и получает по потребностям.</p>
+            </section>
+
+            <!-- КОНСТИТУЦИЯ -->
+            <section id="constitution">
+                <h2><i class="fas fa-scroll"></i> Конституция КПРС</h2>
+                <div class="constitution-wrapper">
+
+                    <div class="constitution-preamble">
+                        <p><strong>Преамбула</strong></p>
+                        <p>Мы, граждане Коммунистического Пролетарского Революционного Союза, руководствуясь идеалами социальной справедливости, коллективизма, равенства, взаимного уважения и товарищества, принимаем настоящую Конституцию.</p>
+                        <p>Учреждая единое социалистическое государство, мы стремимся обеспечить благополучие общества, развитие коллективного труда, защиту достоинства каждого гражданина и создание условий, при которых каждый сможет участвовать в жизни государства и вносить вклад в его развитие.</p>
+                        <p>Настоящая Конституция является Основным законом КПРС и обладает высшей юридической силой на всей территории Союза.</p>
+                        <hr style="border-color:#5f2a2a; margin:12px 0;" />
+                    </div>
+
+                    <details class="chapter-block">
+                        <summary>Глава I. Основы конституционного строя</summary>
+                        <div class="chapter-content">
+                            <div class="article">
+                                <strong>Статья 1. Государство</strong>
+                                <p>Коммунистический Пролетарский Революционный Союз (КПРС) является единым унитарным социалистическим государством.</p>
+                                <p>Источником государственной власти являются граждане КПРС.</p>
+                                <p>Государственная власть осуществляется на основе принципов дисциплинарной советской демократии, законности, коллективной ответственности и общественного контроля.</p>
+                            </div>
+                            <div class="article">
+                                <strong>Статья 2. Основы общественного строя</strong>
+                                <p>Основу общества составляют коллективный труд, общественная солидарность и взаимопомощь.</p>
+                                <p>Средства производства и государственные проекты находятся в коллективном пользовании либо под государственным управлением.</p>
+                                <p>Эксплуатация человека человеком запрещается.</p>
+                            </div>
+                            <div class="article">
+                                <strong>Статья 3. Территория государства</strong>
+                                <p>Территория КПРС является единой и неделимой.</p>
+                                <p>Государство состоит из административно-территориальных единиц.</p>
+                                <p>Органы местного управления действуют в пределах полномочий, предоставленных им законами КПРС.</p>
+                                <p>Ни одна административная единица не обладает государственным суверенитетом и не имеет права выхода из состава Союза.</p>
+                            </div>
+                        </div>
+                    </details>
+
+                    <details class="chapter-block">
+                        <summary>Глава II. Права и обязанности граждан</summary>
+                        <div class="chapter-content">
+                            <div class="article">
+                                <strong>Статья 4. Основные права граждан</strong>
+                                <p>Каждый гражданин КПРС имеет право:</p>
+                                <ul>
+                                    <li>на труд и справедливое распределение результатов коллективной деятельности;</li>
+                                    <li>на отдых;</li>
+                                    <li>на участие в управлении государством непосредственно либо через органы власти;</li>
+                                    <li>на свободу совести, убеждений, слова и объединений, если их осуществление не наносит ущерба государству и обществу;</li>
+                                    <li>на создание профессиональных союзов;</li>
+                                    <li>на уважение своего достоинства и защиту законных интересов.</li>
+                                </ul>
+                            </div>
+                            <div class="article">
+                                <strong>Статья 5. Основные обязанности граждан</strong>
+                                <p>Каждый гражданин обязан:</p>
+                                <ul>
+                                    <li>соблюдать Конституцию и законы КПРС;</li>
+                                    <li>уважать права и достоинство других граждан;</li>
+                                    <li>участвовать в общественной жизни государства;</li>
+                                    <li>бережно относиться к общественному имуществу;</li>
+                                    <li>защищать свободу, независимость и интересы КПРС;</li>
+                                    <li>добросовестно исполнять свои обязанности перед обществом.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </details>
+
+                    <details class="chapter-block">
+                        <summary>Глава III. Государственная власть</summary>
+                        <div class="chapter-content">
+                            <div class="article">
+                                <strong>Статья 6. Генеральный секретарь</strong>
+                                <p>Генеральный секретарь КПРС является главой государства и высшим должностным лицом Союза.</p>
+                                <p>Генеральный секретарь избирается гражданами КПРС на неопределённый срок до принятия решения о его переизбрании.</p>
+                                <p>Генеральный секретарь:</p>
+                                <ul>
+                                    <li>определяет основные направления развития государства;</li>
+                                    <li>координирует деятельность органов власти;</li>
+                                    <li>представляет КПРС во внешних отношениях;</li>
+                                    <li>обеспечивает соблюдение Конституции.</li>
+                                </ul>
+                                <p>Генеральный секретарь обладает высшими государственными полномочиями и несёт ответственность перед гражданами КПРС.</p>
+                            </div>
+                            <div class="article">
+                                <strong>Статья 7. Председатель Совета Министров</strong>
+                                <p>Председатель Совета Министров является заместителем Генерального секретаря.</p>
+                                <p>Он организует работу исполнительных органов власти.</p>
+                                <p>В случае отсутствия Генерального секретаря временно исполняет его полномочия.</p>
+                            </div>
+                            <div class="article">
+                                <strong>Статья 8. Пресс-секретарь</strong>
+                                <p>Пресс-секретарь обеспечивает информационную политику государства.</p>
+                                <p>Организует взаимодействие органов власти с гражданами.</p>
+                                <p>Руководит государственными информационными и общественными проектами.</p>
+                            </div>
+                            <div class="article">
+                                <strong>Статья 9. Государственный аппарат</strong>
+                                <p>Государственный аппарат состоит из комитетов и иных органов управления.</p>
+                                <p>Руководители комитетов назначаются в порядке, установленном законодательством КПРС.</p>
+                                <p>Государственный аппарат обеспечивает исполнение решений органов власти.</p>
+                            </div>
+                        </div>
+                    </details>
+
+                    <details class="chapter-block">
+                        <summary>Глава IV. Социальные классы</summary>
+                        <div class="chapter-content">
+                            <div class="article">
+                                <strong>Статья 10. Труженики</strong>
+                                <p>Основу общества составляют труженики.</p>
+                                <p>К ним относятся граждане, занятые в промышленности, строительстве, сельском хозяйстве, культуре, науке и иных сферах общественно полезной деятельности.</p>
+                                <p>Труженики обладают равными политическими правами.</p>
+                            </div>
+                            <div class="article">
+                                <strong>Статья 11. Рабочие</strong>
+                                <p>Рабочие являются основной производительной силой государства.</p>
+                                <p>Государство гарантирует защиту их трудовых прав и интересов.</p>
+                            </div>
+                            <div class="article">
+                                <strong>Статья 12. Крестьяне</strong>
+                                <p>Крестьяне обеспечивают развитие сельского хозяйства и продовольственную безопасность.</p>
+                                <p>Государство оказывает им всестороннюю поддержку.</p>
+                            </div>
+                            <div class="article">
+                                <strong>Статья 13. Представители иных государств</strong>
+                                <p>Представители других кланов и государств могут находиться на территории КПРС в качестве гостей или наблюдателей.</p>
+                                <p>Их статус определяется законами и международными соглашениями КПРС.</p>
+                            </div>
+                            <div class="article">
+                                <strong>Статья 14. Особое формирование «Дурка»</strong>
+                                <p>Формирование «Дурка» является специальным государственным учреждением социальной поддержки.</p>
+                                <p>Его деятельность осуществляется на принципах гуманизма, добровольности и уважения личности.</p>
+                                <p>Формирование находится под непосредственным контролем Генерального секретаря и органов государственной власти.</p>
+                            </div>
+                        </div>
+                    </details>
+
+                    <details class="chapter-block">
+                        <summary>Глава V. Основы управления</summary>
+                        <div class="chapter-content">
+                            <div class="article">
+                                <strong>Статья 15. Дисциплинарная советская демократия</strong>
+                                <p>Важнейшие вопросы государственной жизни обсуждаются гражданами КПРС.</p>
+                                <p>Решения принимаются посредством голосования, если иное не установлено настоящей Конституцией.</p>
+                                <p>Государственные органы обязаны учитывать мнение граждан.</p>
+                            </div>
+                            <div class="article">
+                                <strong>Статья 16. Законность</strong>
+                                <p>Государственная власть осуществляется исключительно на основании Конституции и законов.</p>
+                                <p>Запрещаются произвол, репрессии и незаконное применение силы.</p>
+                                <p>Все граждане равны перед законом.</p>
+                            </div>
+                            <div class="article">
+                                <strong>Статья 17. Экономическая система</strong>
+                                <p>Экономика КПРС основывается на принципах государственного планирования и коллективного труда.</p>
+                                <p>Государственные ресурсы используются исключительно в интересах общества.</p>
+                                <p>Развитие науки, промышленности, строительства и сельского хозяйства является приоритетом государственной политики.</p>
+                            </div>
+                        </div>
+                    </details>
+
+                    <details class="chapter-block">
+                        <summary>Глава VI. Заключительные положения</summary>
+                        <div class="chapter-content">
+                            <div class="article">
+                                <strong>Статья 18. Изменение Конституции</strong>
+                                <p>Конституция может быть изменена или дополнена по решению граждан КПРС.</p>
+                                <p>Изменения вступают в силу после их официального утверждения Генеральным секретарём.</p>
+                            </div>
+                            <div class="article">
+                                <strong>Статья 19. Вступление Конституции в силу</strong>
+                                <p>Настоящая Конституция вступает в силу с момента её официального утверждения.</p>
+                            </div>
+                            <div style="margin-top:16px; border-top:1px solid #5f2a2a; padding-top:12px; font-style:italic; color:#bb9988;">
+                                <p>Настоящая Конституция принята гражданами Коммунистического Пролетарского Революционного Союза и утверждена Генеральным секретарём КПРС.</p>
+                                <p style="margin-top:4px;"><strong>Генеральный секретарь КПРС</strong><br />Ssmoyg</p>
+                            </div>
+                        </div>
+                    </details>
+
+                </div>
+            </section>
+
+            <!-- ВСТУПЛЕНИЕ -->
+            <section id="membership">
+                <h2><i class="fas fa-handshake"></i> Как вступить в КПРС?</h2>
+                <p>Чтобы вступить в КПРС, необходимо зайти на сервер в <strong>Discord</strong> и быть активным на <strong>острове КПРС</strong>. После этого вы сможете быстро продвинуться по званиям.</p>
+                <p>Присоединяйтесь к нашему сообществу, участвуйте в жизни государства и вносите вклад в общие проекты. Чем активнее вы помогаете Союзу, тем быстрее растёт ваш статус и открываются новые возможности.</p>
+                <div class="quote-block">
+                    <i class="fas fa-star"></i>
+                    «Активность на острове — ключ к признанию и росту. Вместе мы построим метро и укрепим нашу державу!»
+                </div>
+            </section>
+
+            <!-- ПРОЕКТЫ -->
+            <section id="projects">
+                <h2><i class="fas fa-hammer"></i> Проекты КПРС</h2>
+                <p style="margin-bottom: 12px;">Перечень основных строек и программ Союза:</p>
+                <div class="projects-grid">
+                    <div class="project-card"><h4>Метрополитен</h4></div>
+                    <div class="project-card"><h4>Остров</h4></div>
+                    <div class="project-card"><h4>Водохранилища</h4></div>
+                    <div class="project-card"><h4>Батареи орудий</h4></div>
+                    <div class="project-card"><h4>ПВО Союза</h4></div>
+                    <div class="project-card"><h4>Стены острова</h4></div>
+                    <div class="project-card"><h4>Космическая программа</h4></div>
+                    <div class="project-card"><h4>Ядерная программа</h4></div>
+                </div>
+            </section>
+
+            <!-- Подвал -->
+            <footer class="footer">
+                <span><i class="fas fa-copyright"></i> 2026 <span class="gold">КПРС</span> — Коммунистический пролетарский революционный союз</span>
+                <span>Построен трудом <strong>пролетариев Minecraft</strong></span>
+                <span><i class="fas fa-star"></i> #Солидарность #Труд #Справедливость</span>
+            </footer>
+        </div>
+        <div class="hazard-strip bottom"></div>
+    </div>
 
     <script>
         (function() {
-            // Клик по кнопкам навигации: плавный переход к разделу
+            // ================== ПЕРЕХОД С ЗАСТАВКИ НА ОСНОВНОЙ САЙТ ==================
+            const splash = document.getElementById('splash-screen');
+            const enterBtn = document.getElementById('enter-btn');
+            const mainSite = document.getElementById('main-site');
+
+            if (enterBtn) {
+                enterBtn.addEventListener('click', function() {
+                    // Запускаем анимацию исчезновения
+                    splash.classList.add('hidden');
+                    
+                    // После завершения анимации скрываем заставку и показываем основной сайт
+                    setTimeout(() => {
+                        splash.style.display = 'none';
+                        mainSite.style.display = 'block';
+                        // Убедимся, что верхняя часть сайта видна сразу
+                        window.scrollTo(0, 0);
+                    }, 1000); // 1000 мс = 1 секунда (подогнано под transition в CSS)
+                });
+            }
+
+            // ================== НАВИГАЦИЯ ==================
             const navButtons = document.querySelectorAll('.nav-btn');
             const sections = Array.from(navButtons).map(btn => document.getElementById(btn.dataset.target));
 
@@ -1142,7 +1276,6 @@
             // ================== ГЛИТЧИ ЭКРАНА ==================
             const body = document.body;
 
-            // Мягкий глитч (частый, лёгкий)
             function triggerSoftGlitch() {
                 body.classList.add('glitch-soft');
                 setTimeout(() => {
@@ -1150,7 +1283,6 @@
                 }, 300 + Math.random() * 200);
             }
 
-            // Жёсткий глитч (редкий, сильный)
             function triggerHardGlitch() {
                 body.classList.add('glitch-hard');
                 setTimeout(() => {
@@ -1158,7 +1290,6 @@
                 }, 400 + Math.random() * 200);
             }
 
-            // Запускаем мягкие глитчи каждые 2-5 секунд
             function scheduleSoftGlitch() {
                 const delay = 2000 + Math.random() * 3000;
                 setTimeout(() => {
@@ -1167,7 +1298,6 @@
                 }, delay);
             }
 
-            // Запускаем жёсткие глитчи каждые 10-15 секунд
             function scheduleHardGlitch() {
                 const delay = 10000 + Math.random() * 5000;
                 setTimeout(() => {
