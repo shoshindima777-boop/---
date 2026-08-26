@@ -33,8 +33,9 @@
             justify-content: center;
             align-items: center;
             background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7)), url('poster.jpg');
-            background-size: cover;
+            background-size: cover; /* РАСТЯГИВАЕМ ИЗОБРАЖЕНИЕ НА ВЕСЬ ЭКРАН */
             background-position: center;
+            background-repeat: no-repeat; /* УБИРАЕМ ПОВТОРЕНИЕ */
             transition: opacity 1s ease, transform 1s ease;
             overflow: hidden;
         }
@@ -146,10 +147,10 @@
         body {
             /* Фоновый постер с затемнением для читаемости */
             background: linear-gradient(rgba(12, 6, 4, 0.4), rgba(12, 6, 4, 0.4)), url('poster.jpg');
-            background-size: cover;
-            background-attachment: fixed;
+            background-size: cover; /* РАСТЯГИВАЕМ ИЗОБРАЖЕНИЕ НА ВЕСЬ ЭКРАН */
             background-position: center;
-            background-repeat: no-repeat;
+            background-repeat: no-repeat; /* УБИРАЕМ ПОВТОРЕНИЕ */
+            background-attachment: fixed; /* ЗАКРЕПЛЯЕМ ФОН, ЧТОБЫ НЕ ДВИГАЛСЯ ПРИ ПРОКРУТКЕ */
             color: var(--text);
             font-family: 'PT Serif', 'Segoe UI', serif;
             line-height: 1.6;
