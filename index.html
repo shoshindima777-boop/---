@@ -1525,14 +1525,14 @@
                 </div>
             </section>
 
-            <!-- ================= СТРАНИЦА:
+            <!-- ================= СТРАНИЦА: ВСТУПЛЕНИЕ ================= -->
             <section id="membership" class="page-content" style="display:none;">
                 <h2><i class="fas fa-handshake"></i> Как вступить в КПРС?</h2>
-                <p>Чтобы вступить в КПРС, необходимо зайти на сервер в <strong>Discord</strong> и быть активным на <strong>острове КПРС</strong>. После этого вы сможете быстро продвинуться по званиям.</p>
+                <p>Чтобы вступить в КПРС, необходимо зайти на сервер в <strong>Discord</strong> и быть активным в <strong>КПРС</strong>. После этого вы сможете быстро продвинуться по званиям.</p>
                 <p>Присоединяйтесь к нашему сообществу, участвуйте в жизни государства и вносите вклад в общие проекты. Чем активнее вы помогаете Союзу, тем быстрее растёт ваш статус и открываются новые возможности.</p>
                 <div class="quote-block">
                     <i class="fas fa-star"></i>
-                    «Активность на острове — ключ к признанию и росту. Вместе мы построим метро и укрепим нашу державу!»
+                    «Активность в КПРС — ключ к признанию и росту. Вместе мы построим метро и укрепим нашу державу!»
                 </div>
             </section>
 
@@ -1755,120 +1755,30 @@
             // --- Фоновая мелодия: авторская, в характере старой советской
             // маршевой/народной песни. Не цитирует мелодию «Катюши».
             function startBackgroundMelody() {
-                // Чуть быстрее исходной версии: длительности уменьшены примерно на 12%.
-                // Мотив сделан более напевным и маршевым за счёт ровного пульса и баса.
-                const TEMPO = 0.88;
-                const melody = [
-                    { f: 329.63, d: 0.28 }, // E4
-                    { f: 440.00, d: 0.14 }, // A4
-                    { f: 493.88, d: 0.14 }, // B4
-                    { f: 523.25, d: 0.28 }, // C5
-                    { f: 493.88, d: 0.28 }, // B4
-                    { f: 440.00, d: 0.28 }, // A4
-                    { f: 392.00, d: 0.28 }, // G4
-                    { f: 329.63, d: 0.28 }, // E4
-                    { f: 329.63, d: 0.28 }, // E4
-                    { f: 440.00, d: 0.14 }, // A4
-                    { f: 523.25, d: 0.14 }, // C5
-                    { f: 587.33, d: 0.28 }, // D5
-                    { f: 523.25, d: 0.28 }, // C5
-                    { f: 493.88, d: 0.28 }, // B4
-                    { f: 440.00, d: 0.28 }, // A4
-                    { f: 440.00, d: 0.54 }  // A4
-                ].map(function(note) {
-                    return { f: note.f, d: note.d / TEMPO };
-                });
+                // Песня запускается через единый музыкальный блок.
+                const song = document.getElementById("kprsSong");
+                if (!song) return;
 
-                // Маршевая басовая пульсация — более «гармошечная» и ровная.
-                const bassLine = [
-                    { f: 220.00, d: 1.32 }, // A3
-                    { f: 164.81, d: 1.32 }, // E3
-                    { f: 220.00, d: 1.32 }  // A3
-                ].map(function(note) {
-                    return { f: note.f, d: note.d / TEMPO };
-                });
+                song.loop = true;
+                song.volume = 0.45;
 
-                const totalDuration = melody.reduce(function(sum, note) { return sum + note.d; }, 0) + 0.3;
-                const offlineCtx = new OfflineAudioContext(1, Math.ceil(audioCtx.sampleRate * totalDuration), audioCtx.sampleRate);
-
-                const offlineFilter = offlineCtx.createBiquadFilter();
-                offlineFilter.type = 'lowpass';
-                offlineFilter.frequency.value = 3400;
-                offlineFilter.connect(offlineCtx.destination);
-
-                // --- Мелодическая линия
-                let t = 0;
-                melody.forEach(function(note) {
-                    const osc = offlineCtx.createOscillator();
-                    osc.type = 'square';
-                    osc.frequency.value = note.f;
-
-                    const g = offlineCtx.createGain();
-                    g.gain.setValueAtTime(0.0001, t);
-                    g.gain.exponentialRampToValueAtTime(0.42, t + 0.015);
-                    g.gain.exponentialRampToValueAtTime(0.0001, t + note.d * 0.95);
-
-                    osc.connect(g);
-                    g.connect(offlineFilter);
-                    osc.start(t);
-                    osc.stop(t + note.d);
-
-                    t += note.d;
-                });
-
-                // --- Басовая линия (мягче и тише, для объёма звучания)
-                let bt = 0;
-                bassLine.forEach(function(note) {
-                    const osc = offlineCtx.createOscillator();
-                    osc.type = 'triangle';
-                    osc.frequency.value = note.f;
-
-                    const g = offlineCtx.createGain();
-                    g.gain.setValueAtTime(0.0001, bt);
-                    g.gain.exponentialRampToValueAtTime(0.28, bt + 0.03);
-                    g.gain.exponentialRampToValueAtTime(0.0001, bt + note.d * 0.92);
-
-                    osc.connect(g);
-                    g.connect(offlineCtx.destination);
-                    osc.start(bt);
-                    osc.stop(bt + note.d);
-
-                    bt += note.d;
-                });
-
-                // --- Короткая «гармонь»-подкладка на квинтах: добавляет маршевый характер.
-                let ht = 0;
-                melody.slice(0, 8).forEach(function(note, index) {
-                    const root = [164.81, 220.00, 164.81, 220.00][index % 4];
-                    const osc = offlineCtx.createOscillator();
-                    osc.type = 'triangle';
-                    osc.frequency.value = root * 2;
-                    const g = offlineCtx.createGain();
-                    g.gain.setValueAtTime(0.0001, ht);
-                    g.gain.exponentialRampToValueAtTime(0.09, ht + 0.012);
-                    g.gain.exponentialRampToValueAtTime(0.0001, ht + note.d * 0.72);
-                    osc.connect(g);
-                    g.connect(offlineFilter);
-                    osc.start(ht);
-                    osc.stop(ht + note.d);
-                    ht += note.d;
-                });
-
-                offlineCtx.startRendering().then(function(renderedBuffer) {
-                    const melodySource = audioCtx.createBufferSource();
-                    melodySource.buffer = renderedBuffer;
-                    melodySource.loop = true;
-
-                    const melodyGain = audioCtx.createGain();
-                    melodyGain.gain.value = 0.065;
-
-                    melodySource.connect(melodyGain);
-                    melodyGain.connect(masterGain);
-                    melodySource.start(0);
-                }).catch(function() {
-                    // Если офлайн-рендеринг недоступен в браузере — просто без фоновой мелодии
-                });
+                const p = song.play();
+                if (p && typeof p.catch === "function") {
+                    p.catch(function () {
+                        // Браузер разрешит воспроизведение после следующего клика.
+                    });
+                }
+                window.kprsMusicStarted = true;
+                window.kprsMusicSource = song;
             }
+
+            // Разрешаем звук после первого действия пользователя.
+            ["click", "touchstart", "keydown"].forEach(function(eventName) {
+                document.addEventListener(eventName, function enableKprsMusic() {
+                    startBackgroundMelody();
+                    document.removeEventListener(eventName, enableKprsMusic);
+                }, { once: true, passive: true });
+            });
 
             function updateSoundButton() {
                 if (!soundToggleBtn) return;
@@ -2443,5 +2353,8 @@
             });
         })();
     </script>
+
+
+
 </body>
 </html>
