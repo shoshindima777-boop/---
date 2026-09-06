@@ -1224,10 +1224,35 @@
     <div class="crt-flicker"></div>
     <div class="crt-vignette"></div>
 
-    <!-- Переключатель звука — виден на заставке и на сайте -->
-    <button id="soundToggleBtn" class="sound-toggle-btn muted" type="button" aria-label="Включить звук">
-        <i class="fas fa-volume-mute"></i>
-    </button>
+    <!-- ================= ЕДИНЫЙ МУЗЫКАЛЬНЫЙ БЛОК ================= -->
+    <div id="kprsMusicBlock" style="
+        position: fixed;
+        top: 16px;
+        right: 18px;
+        z-index: 99999;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 11px;
+        background: rgba(18,10,8,.92);
+        border: 1px solid rgba(212,175,55,.7);
+        border-radius: 10px;
+        box-shadow: 0 5px 20px rgba(0,0,0,.45);
+    ">
+        <button id="soundToggleBtn" class="sound-toggle-btn muted" type="button"
+                aria-label="Включить марш"
+                title="Включить/выключить марш">
+            <i class="fas fa-volume-mute"></i>
+        </button>
+        <span style="color:#d4af37;font:600 12px Arial,sans-serif;">МАРШ</span>
+        <input id="kprsVolume" type="range" min="0" max="1" step="0.01" value="0.45"
+               title="Громкость" style="width:90px;cursor:pointer;">
+    </div>
+
+    <!-- Песня находится в репозитории рядом с index.html -->
+    <audio id="kprsSong" preload="auto" loop>
+        <source src="command_and_conquer_red_alert_3_04-from_first_to_last_-_hell_march_1-umt (1).mp3" type="audio/mpeg">
+    </audio>
 
     <!-- ========================================================== -->
     <!-- ЗАСТАВКА (ВХОДНАЯ СТРАНИЦА С МЕНЮ РАЗДЕЛОВ) -->
@@ -1755,21 +1780,39 @@
             // --- Фоновая мелодия: авторская, в характере старой советской
             // маршевой/народной песни. Не цитирует мелодию «Катюши».
             function startBackgroundMelody() {
-                // Песня запускается через единый музыкальный блок.
-                const song = document.getElementById("kprsSong");
+                const song = document.getElementById('kprsSong');
+                const volumeSlider = document.getElementById('kprsVolume');
                 if (!song) return;
 
                 song.loop = true;
-                song.volume = 0.45;
+                song.volume = volumeSlider ? Number(volumeSlider.value) : 0.45;
 
-                const p = song.play();
-                if (p && typeof p.catch === "function") {
-                    p.catch(function () {
-                        // Браузер разрешит воспроизведение после следующего клика.
+                const promise = song.play();
+                if (promise && promise.catch) {
+                    promise.catch(function() {
+                        // Автозапуск блокируется браузером до пользовательского действия.
                     });
                 }
+
                 window.kprsMusicStarted = true;
                 window.kprsMusicSource = song;
+            }
+
+            // Запуск песни после первого пользовательского действия.
+            ['click', 'touchstart', 'keydown'].forEach(function(eventName) {
+                document.addEventListener(eventName, function enableKprsMusic() {
+                    startBackgroundMelody();
+                    document.removeEventListener(eventName, enableKprsMusic);
+                }, { once: true, passive: true });
+            });
+
+            // Громкость песни управляется тем же единым музыкальным блоком.
+            const kprsVolume = document.getElementById('kprsVolume');
+            if (kprsVolume) {
+                kprsVolume.addEventListener('input', function() {
+                    const song = document.getElementById('kprsSong');
+                    if (song) song.volume = Number(this.value);
+                });
             }
 
             // Разрешаем звук после первого действия пользователя.
