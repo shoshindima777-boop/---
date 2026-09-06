@@ -918,9 +918,178 @@
         @media (prefers-reduced-motion: reduce) {
             .crt-rollbar, .crt-flicker, #crt-noise-canvas, .vhs-tracking, .vhs-jump,
             .hazard-strip, .title-group h1, .splash-content,
-            .splash-menu-btn::before, #splash-screen::after {
+            .splash-menu-btn::before, #splash-screen::after,
+            .boot-star, .boot-progress span {
                 animation: none !important;
             }
+        }
+
+        /* ----- ПЕРЕКЛЮЧАТЕЛЬ ЗВУКА ----- */
+        .sound-toggle-btn {
+            position: fixed;
+            top: 18px;
+            right: 18px;
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: rgba(20, 8, 8, 0.75);
+            border: 2px solid var(--gold-dark);
+            color: var(--gold);
+            font-size: 1.15rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            pointer-events: auto;
+            z-index: 10010;
+            backdrop-filter: blur(3px);
+            box-shadow: 0 0 14px rgba(0, 0, 0, 0.5);
+            transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s, color 0.2s;
+        }
+
+        .sound-toggle-btn:hover {
+            transform: scale(1.08);
+            border-color: var(--gold);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+        }
+
+        .sound-toggle-btn:active { transform: scale(0.95); }
+
+        .sound-toggle-btn:focus-visible {
+            outline: 2px solid var(--gold);
+            outline-offset: 3px;
+        }
+
+        .sound-toggle-btn.muted {
+            color: #a88070;
+            border-color: var(--red-deep);
+        }
+
+        @media (max-width: 700px) {
+            .sound-toggle-btn { top: 12px; right: 12px; width: 40px; height: 40px; font-size: 1rem; }
+        }
+
+        /* ----- ЭКРАН ЗАГРУЗКИ «КПРСос» (в духе Windows XP, советская тематика) ----- */
+        #boot-screen {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle at 50% 42%, #200b0b 0%, #0a0403 60%, #050202 100%);
+            text-align: center;
+            opacity: 1;
+            transition: opacity 0.5s ease;
+            padding: 20px;
+        }
+
+        #boot-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .boot-star-wrap {
+            margin-bottom: 22px;
+        }
+
+        .boot-star {
+            font-size: clamp(3.5rem, 9vw, 5.5rem);
+            color: var(--gold);
+            text-shadow: 0 0 20px #ffd700, 0 0 50px #ff8800, 0 0 90px #ff4400;
+            display: inline-block;
+            animation: bootStarIn 1s cubic-bezier(0.22, 1, 0.36, 1) both,
+                       bootStarPulse 1.6s ease-in-out 1s infinite;
+        }
+
+        @keyframes bootStarIn {
+            0% { opacity: 0; transform: scale(0.2) rotate(-50deg); }
+            70% { opacity: 1; transform: scale(1.15) rotate(8deg); }
+            100% { opacity: 1; transform: scale(1) rotate(0deg); }
+        }
+
+        @keyframes bootStarPulse {
+            0%, 100% { text-shadow: 0 0 20px #ffd700, 0 0 50px #ff8800, 0 0 90px #ff4400; }
+            50% { text-shadow: 0 0 32px #ffd700, 0 0 70px #ff8800, 0 0 130px #ff4400; }
+        }
+
+        .boot-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: clamp(1.9rem, 6vw, 3.1rem);
+            font-weight: 700;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            color: var(--gold);
+            background: linear-gradient(180deg, #ffd700, #e6a800);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            opacity: 0;
+            animation: bootTextIn 0.7s ease-out 0.5s forwards;
+            margin-bottom: 8px;
+        }
+
+        .boot-subtitle {
+            font-family: 'Oswald', sans-serif;
+            font-size: clamp(0.75rem, 2vw, 0.95rem);
+            letter-spacing: 3px;
+            color: #cfa07a;
+            text-transform: uppercase;
+            opacity: 0;
+            animation: bootTextIn 0.7s ease-out 0.8s forwards;
+            margin-bottom: 42px;
+        }
+
+        @keyframes bootTextIn {
+            0% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .boot-progress {
+            width: 230px;
+            max-width: 70vw;
+            height: 9px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            overflow: hidden;
+            position: relative;
+            opacity: 0;
+            animation: bootTextIn 0.6s ease-out 1.1s forwards;
+        }
+
+        .boot-progress span {
+            position: absolute;
+            top: 0;
+            left: -40%;
+            width: 40%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--red-primary), var(--gold), var(--red-primary));
+            border-radius: 5px;
+            animation: bootBarSlide 1s ease-in-out infinite;
+        }
+
+        @keyframes bootBarSlide {
+            0% { left: -40%; }
+            100% { left: 100%; }
+        }
+
+        .boot-hint {
+            margin-top: 22px;
+            font-family: 'PT Serif', serif;
+            font-size: 0.85rem;
+            color: #8a6a55;
+            letter-spacing: 1px;
+            opacity: 0;
+            animation: bootTextIn 0.6s ease-out 1.4s forwards;
+        }
+
+        @media (max-width: 480px) {
+            .boot-title { letter-spacing: 3px; }
         }
 
         /* Адаптив */
@@ -957,10 +1126,15 @@
     <div class="crt-flicker"></div>
     <div class="crt-vignette"></div>
 
+    <!-- Переключатель звука — виден на заставке и на сайте -->
+    <button id="soundToggleBtn" class="sound-toggle-btn muted" type="button" aria-label="Включить звук">
+        <i class="fas fa-volume-mute"></i>
+    </button>
+
     <!-- ========================================================== -->
     <!-- ЗАСТАВКА (ВХОДНАЯ СТРАНИЦА С МЕНЮ РАЗДЕЛОВ) -->
     <!-- ========================================================== -->
-    <div id="splash-screen">
+    <div id="splash-screen" style="display: none;">
         <div class="splash-content">
             <div class="emblem"><i class="fas fa-star"></i></div>
             <h1>КПРС</h1>
@@ -977,6 +1151,19 @@
                 <button class="splash-menu-btn" type="button" data-target="republics"><i class="fas fa-landmark"></i> Республики</button>
             </div>
         </div>
+    </div>
+
+    <!-- ========================================================== -->
+    <!-- ЭКРАН ЗАГРУЗКИ «КПРСос» (аналог загрузки Windows XP, советская тематика) -->
+    <!-- ========================================================== -->
+    <div id="boot-screen">
+        <div class="boot-star-wrap">
+            <i class="fas fa-star boot-star"></i>
+        </div>
+        <div class="boot-title">КПРС</div>
+        <div class="boot-subtitle">Единая союзная система доступа</div>
+        <div class="boot-progress"><span></span></div>
+        <div class="boot-hint">Загрузка Союза...</div>
     </div>
 
     <!-- ========================================================== -->
@@ -1318,11 +1505,348 @@
     <script>
         (function() {
             const splash = document.getElementById('splash-screen');
+            const bootScreen = document.getElementById('boot-screen');
             const mainSite = document.getElementById('main-site');
             const pages = document.querySelectorAll('.page-content');
             const navButtons = document.querySelectorAll('.nav-btn[data-target]');
             const splashButtons = document.querySelectorAll('.splash-menu-btn[data-target]');
             const backToMenuBtn = document.getElementById('backToMenuBtn');
+            const soundToggleBtn = document.getElementById('soundToggleBtn');
+
+            // Заставку скрываем сразу — первым делом показываем экран загрузки «КПРСос»
+            splash.style.display = 'none';
+
+            // ================== ЗВУК: ГУЛ И ШИПЕНИЕ СТАРОГО ТЕЛЕВИЗОРА ==================
+            let audioCtx = null;
+            let masterGain = null;
+            let soundEnabled = false;
+            let audioReady = false;
+
+            function buildAudioGraph() {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+                masterGain = audioCtx.createGain();
+                masterGain.gain.value = 0;
+                masterGain.connect(audioCtx.destination);
+
+                // --- Шипение статики: закольцованный белый шум через полосовой фильтр
+                const bufferSeconds = 2;
+                const noiseBuffer = audioCtx.createBuffer(1, audioCtx.sampleRate * bufferSeconds, audioCtx.sampleRate);
+                const noiseData = noiseBuffer.getChannelData(0);
+                for (let i = 0; i < noiseData.length; i++) {
+                    noiseData[i] = Math.random() * 2 - 1;
+                }
+
+                const noiseSource = audioCtx.createBufferSource();
+                noiseSource.buffer = noiseBuffer;
+                noiseSource.loop = true;
+
+                const bandpass = audioCtx.createBiquadFilter();
+                bandpass.type = 'bandpass';
+                bandpass.frequency.value = 2600;
+                bandpass.Q.value = 0.5;
+
+                const noiseGain = audioCtx.createGain();
+                noiseGain.gain.value = 0.02;
+
+                noiseSource.connect(bandpass);
+                bandpass.connect(noiseGain);
+                noiseGain.connect(masterGain);
+                noiseSource.start(0);
+
+                // --- Низкий гул трансформатора/ЭЛТ (50 Гц + слабая вторая гармоника)
+                const hum = audioCtx.createOscillator();
+                hum.type = 'sine';
+                hum.frequency.value = 50;
+                const humGain = audioCtx.createGain();
+                humGain.gain.value = 0.02;
+
+                const hum2 = audioCtx.createOscillator();
+                hum2.type = 'sine';
+                hum2.frequency.value = 100;
+                const hum2Gain = audioCtx.createGain();
+                hum2Gain.gain.value = 0.008;
+
+                hum.connect(humGain);
+                humGain.connect(masterGain);
+                hum2.connect(hum2Gain);
+                hum2Gain.connect(masterGain);
+                hum.start(0);
+                hum2.start(0);
+
+                startBackgroundMelody();
+
+                audioReady = true;
+            }
+
+            // --- Фоновая мелодия в духе советского марша (авторская, не является
+            // цитатой конкретной песни) — закольцованная 8-битная тема на фоне сайта
+            function startBackgroundMelody() {
+                // Важно: это ОРИГИНАЛЬНАЯ мелодия в характере простой русской
+                // народной/патриотической песни — не ноты настоящей «Катюши»
+                // (это охраняемое авторским правом произведение), а собственная
+                // тема с похожим настроением: минорный лад, напевный мотив и
+                // простой басовый аккомпанемент, как в куплетной песне под гармонь.
+                const melody = [
+                    { f: 329.63, d: 0.30 }, // E4
+                    { f: 440.00, d: 0.15 }, // A4
+                    { f: 493.88, d: 0.15 }, // B4
+                    { f: 523.25, d: 0.30 }, // C5
+                    { f: 493.88, d: 0.30 }, // B4
+                    { f: 440.00, d: 0.30 }, // A4
+                    { f: 392.00, d: 0.30 }, // G4
+                    { f: 329.63, d: 0.30 }, // E4
+                    { f: 329.63, d: 0.30 }, // E4
+                    { f: 440.00, d: 0.15 }, // A4
+                    { f: 523.25, d: 0.15 }, // C5
+                    { f: 587.33, d: 0.30 }, // D5
+                    { f: 523.25, d: 0.30 }, // C5
+                    { f: 493.88, d: 0.30 }, // B4
+                    { f: 440.00, d: 0.30 }, // A4
+                    { f: 440.00, d: 0.60 }  // A4 (каденция)
+                ];
+
+                // Простой басовый аккомпанемент "гармошкой" под мелодией
+                const bassLine = [
+                    { f: 220.00, d: 1.50 }, // A3 — под первой фразой
+                    { f: 164.81, d: 1.50 }, // E3 — движение к доминанте
+                    { f: 220.00, d: 1.50 }  // A3 — возвращение к тонике
+                ];
+
+                const totalDuration = melody.reduce(function(sum, note) { return sum + note.d; }, 0) + 0.3;
+                const offlineCtx = new OfflineAudioContext(1, Math.ceil(audioCtx.sampleRate * totalDuration), audioCtx.sampleRate);
+
+                const offlineFilter = offlineCtx.createBiquadFilter();
+                offlineFilter.type = 'lowpass';
+                offlineFilter.frequency.value = 3400;
+                offlineFilter.connect(offlineCtx.destination);
+
+                // --- Мелодическая линия
+                let t = 0;
+                melody.forEach(function(note) {
+                    const osc = offlineCtx.createOscillator();
+                    osc.type = 'square';
+                    osc.frequency.value = note.f;
+
+                    const g = offlineCtx.createGain();
+                    g.gain.setValueAtTime(0.0001, t);
+                    g.gain.exponentialRampToValueAtTime(0.42, t + 0.015);
+                    g.gain.exponentialRampToValueAtTime(0.0001, t + note.d * 0.95);
+
+                    osc.connect(g);
+                    g.connect(offlineFilter);
+                    osc.start(t);
+                    osc.stop(t + note.d);
+
+                    t += note.d;
+                });
+
+                // --- Басовая линия (мягче и тише, для объёма звучания)
+                let bt = 0;
+                bassLine.forEach(function(note) {
+                    const osc = offlineCtx.createOscillator();
+                    osc.type = 'triangle';
+                    osc.frequency.value = note.f;
+
+                    const g = offlineCtx.createGain();
+                    g.gain.setValueAtTime(0.0001, bt);
+                    g.gain.exponentialRampToValueAtTime(0.28, bt + 0.03);
+                    g.gain.exponentialRampToValueAtTime(0.0001, bt + note.d * 0.92);
+
+                    osc.connect(g);
+                    g.connect(offlineCtx.destination);
+                    osc.start(bt);
+                    osc.stop(bt + note.d);
+
+                    bt += note.d;
+                });
+
+                offlineCtx.startRendering().then(function(renderedBuffer) {
+                    const melodySource = audioCtx.createBufferSource();
+                    melodySource.buffer = renderedBuffer;
+                    melodySource.loop = true;
+
+                    const melodyGain = audioCtx.createGain();
+                    melodyGain.gain.value = 0.05;
+
+                    melodySource.connect(melodyGain);
+                    melodyGain.connect(masterGain);
+                    melodySource.start(0);
+                }).catch(function() {
+                    // Если офлайн-рендеринг недоступен в браузере — просто без фоновой мелодии
+                });
+            }
+
+            function updateSoundButton() {
+                if (!soundToggleBtn) return;
+                soundToggleBtn.classList.toggle('muted', !soundEnabled);
+                soundToggleBtn.innerHTML = soundEnabled
+                    ? '<i class="fas fa-volume-up"></i>'
+                    : '<i class="fas fa-volume-mute"></i>';
+                soundToggleBtn.setAttribute('aria-label', soundEnabled ? 'Выключить звук' : 'Включить звук');
+            }
+
+            function setSoundEnabled(enabled) {
+                soundEnabled = enabled;
+
+                if (enabled) {
+                    if (!audioReady) buildAudioGraph();
+                    if (audioCtx.state === 'suspended') audioCtx.resume();
+                }
+
+                if (audioCtx) {
+                    const now = audioCtx.currentTime;
+                    masterGain.gain.cancelScheduledValues(now);
+                    masterGain.gain.setValueAtTime(masterGain.gain.value, now);
+                    masterGain.gain.linearRampToValueAtTime(enabled ? 1 : 0, now + 0.5);
+                }
+
+                updateSoundButton();
+            }
+
+            // Короткий треск/помеха синхронно со сбоем ленты VHS
+            function playTrackingCrackle() {
+                if (!audioReady || !soundEnabled) return;
+                const dur = 0.22;
+                const bufferSize = Math.floor(audioCtx.sampleRate * dur);
+                const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+
+                const src = audioCtx.createBufferSource();
+                src.buffer = buffer;
+
+                const crackleGain = audioCtx.createGain();
+                const now = audioCtx.currentTime;
+                crackleGain.gain.setValueAtTime(0.0001, now);
+                crackleGain.gain.exponentialRampToValueAtTime(0.3, now + 0.015);
+                crackleGain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+
+                src.connect(crackleGain);
+                crackleGain.connect(masterGain);
+                src.start(now);
+                src.stop(now + dur);
+            }
+
+            // Короткий электронный "блип" при наведении на кнопку
+            function playHoverBlip() {
+                if (!audioReady || !soundEnabled) return;
+                const now = audioCtx.currentTime;
+
+                const osc = audioCtx.createOscillator();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(900, now);
+                osc.frequency.exponentialRampToValueAtTime(1250, now + 0.05);
+
+                const g = audioCtx.createGain();
+                g.gain.setValueAtTime(0.0001, now);
+                g.gain.exponentialRampToValueAtTime(0.045, now + 0.008);
+                g.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
+
+                osc.connect(g);
+                g.connect(masterGain);
+                osc.start(now);
+                osc.stop(now + 0.09);
+            }
+
+            // "Механический" щелчок при нажатии на кнопку
+            function playClickThunk() {
+                if (!audioReady || !soundEnabled) return;
+                const now = audioCtx.currentTime;
+
+                // низкий тон нажатия
+                const osc = audioCtx.createOscillator();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(220, now);
+                osc.frequency.exponentialRampToValueAtTime(85, now + 0.07);
+
+                const oscGain = audioCtx.createGain();
+                oscGain.gain.setValueAtTime(0.0001, now);
+                oscGain.gain.exponentialRampToValueAtTime(0.08, now + 0.006);
+                oscGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.1);
+
+                osc.connect(oscGain);
+                oscGain.connect(masterGain);
+                osc.start(now);
+                osc.stop(now + 0.11);
+
+                // короткий шумовой щелчок поверх тона
+                const bufSize = Math.floor(audioCtx.sampleRate * 0.03);
+                const buf = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
+                const data = buf.getChannelData(0);
+                for (let i = 0; i < bufSize; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+
+                const src = audioCtx.createBufferSource();
+                src.buffer = buf;
+
+                const clickGain = audioCtx.createGain();
+                clickGain.gain.setValueAtTime(0.0001, now);
+                clickGain.gain.exponentialRampToValueAtTime(0.1, now + 0.004);
+                clickGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.03);
+
+                src.connect(clickGain);
+                clickGain.connect(masterGain);
+                src.start(now);
+            }
+
+            // Торжественный джингл при загрузке «КПРСос»
+            function playBootJingle() {
+                if (!audioReady || !soundEnabled) return;
+                const now = audioCtx.currentTime;
+
+                // Восходящий арпеджио
+                const notes = [261.63, 329.63, 392.00, 523.25, 659.25]; // C4 E4 G4 C5 E5
+                notes.forEach(function(freq, i) {
+                    const t = now + i * 0.16;
+                    const osc = audioCtx.createOscillator();
+                    osc.type = 'sawtooth';
+                    osc.frequency.value = freq;
+
+                    const g = audioCtx.createGain();
+                    g.gain.setValueAtTime(0.0001, t);
+                    g.gain.exponentialRampToValueAtTime(0.06, t + 0.02);
+                    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.5);
+
+                    osc.connect(g);
+                    g.connect(masterGain);
+                    osc.start(t);
+                    osc.stop(t + 0.55);
+                });
+
+                // Финальный торжественный аккорд
+                const chordTime = now + notes.length * 0.16 + 0.05;
+                [523.25, 659.25, 783.99].forEach(function(freq) {
+                    const osc = audioCtx.createOscillator();
+                    osc.type = 'sawtooth';
+                    osc.frequency.value = freq;
+
+                    const g = audioCtx.createGain();
+                    g.gain.setValueAtTime(0.0001, chordTime);
+                    g.gain.exponentialRampToValueAtTime(0.05, chordTime + 0.03);
+                    g.gain.exponentialRampToValueAtTime(0.0001, chordTime + 1.2);
+
+                    osc.connect(g);
+                    g.connect(masterGain);
+                    osc.start(chordTime);
+                    osc.stop(chordTime + 1.25);
+                });
+            }
+
+            if (soundToggleBtn) {
+                soundToggleBtn.addEventListener('click', function() {
+                    setSoundEnabled(!soundEnabled);
+                });
+            }
+
+            // Звуки наведения и нажатия для кнопок навигации и меню разделов
+            document.querySelectorAll('.nav-btn, .splash-menu-btn').forEach(function(btn) {
+                btn.addEventListener('mouseenter', playHoverBlip);
+                btn.addEventListener('click', playClickThunk);
+            });
 
             // Показать конкретную страницу-раздел, скрыть остальные
             function showPage(id) {
@@ -1345,10 +1869,29 @@
                 window.scrollTo(0, 0);
             }
 
-            // Переход с заставки сразу на выбранный раздел
+            // Универсальный показ экрана загрузки «КПРСос» (используется и при первом
+            // входе на сайт, и для случайных имитаций перезагрузки системы)
+            const BOOT_DURATION = 3400; // мс полного показа экрана загрузки при старте сайта
+
+            function playBootSequence(durationMs, onComplete) {
+                bootScreen.style.display = 'flex';
+                bootScreen.classList.remove('hidden');
+                playBootJingle();
+
+                setTimeout(function() {
+                    bootScreen.classList.add('hidden');
+                    setTimeout(function() {
+                        bootScreen.style.display = 'none';
+                        if (onComplete) onComplete();
+                    }, 500);
+                }, durationMs);
+            }
+
+            // Переход с заставки сразу на выбранный раздел (без повторной загрузки)
             splashButtons.forEach(function(btn) {
                 btn.addEventListener('click', function() {
                     const target = btn.dataset.target;
+                    if (!soundEnabled) setSoundEnabled(true);
                     splash.classList.add('hidden');
                     setTimeout(function() {
                         splash.style.display = 'none';
@@ -1436,6 +1979,8 @@
                 setTimeout(function() {
                     activeEl.classList.remove('vhs-jump');
                 }, 280);
+
+                playTrackingCrackle();
             }
 
             function scheduleVhsGlitch() {
@@ -1449,6 +1994,34 @@
             if (!reduceMotion) {
                 scheduleVhsGlitch();
             }
+
+            // ================== СЛУЧАЙНЫЕ "ПЕРЕЗАГРУЗКИ" СИСТЕМЫ ==================
+            // Изредка во время работы с сайтом на пару секунд снова
+            // показывается экран загрузки «КПРСос», как будто система на миг
+            // перезапускается — после чего пользователь возвращается туда же,
+            // где был (заставка или текущий раздел сайта не меняются).
+            function triggerRandomReload() {
+                playBootSequence(2200, null);
+            }
+
+            function scheduleRandomReload() {
+                const delay = 15000 + Math.random() * 15000; // раз в ~15–30 секунд
+                setTimeout(function() {
+                    triggerRandomReload();
+                    scheduleRandomReload();
+                }, delay);
+            }
+
+            if (!reduceMotion) {
+                scheduleRandomReload();
+            }
+
+            // ================== ПЕРВЫЙ ВХОД НА САЙТ ==================
+            // При открытии страницы сначала полностью показывается экран
+            // загрузки «КПРСос», и только после него — заставка с меню разделов.
+            playBootSequence(BOOT_DURATION, function() {
+                splash.style.display = 'flex';
+            });
         })();
     </script>
 </body>
