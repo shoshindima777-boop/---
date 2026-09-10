@@ -69,7 +69,7 @@
                 radial-gradient(1px 1px at 68% 68%, rgba(255,215,0,0.5) 50%, transparent 51%),
                 radial-gradient(1.5px 1.5px at 90% 82%, rgba(255,215,0,0.3) 50%, transparent 51%),
                 radial-gradient(1px 1px at 45% 12%, rgba(255,215,0,0.45) 50%, transparent 51%);
-            animation: sparkleTwinkle 5s ease-in-out infinite;
+            animation: none;
         }
 
         @keyframes sparkleTwinkle {
@@ -188,21 +188,6 @@
         }
 
         .splash-menu-btn i { font-size: 1.5rem; }
-
-        .splash-menu-btn::before {
-            content: '';
-            position: absolute;
-            top: 0; left: -60%;
-            width: 40%; height: 100%;
-            background: linear-gradient(115deg, transparent, rgba(255,255,255,0.25), transparent);
-            transform: skewX(-20deg);
-            animation: btnSheen 3.6s ease-in-out infinite;
-        }
-
-        @keyframes btnSheen {
-            0% { left: -60%; }
-            45%, 100% { left: 130%; }
-        }
 
         .splash-menu-btn:hover {
             transform: translateY(-4px) scale(1.04);
@@ -779,12 +764,12 @@
             position: fixed;
             inset: 0;
             pointer-events: none;
-            z-index: 10001;
+            z-index: 100010;
             background: repeating-linear-gradient(
                 to bottom,
                 rgba(0, 0, 0, 0) 0px,
-                rgba(0, 0, 0, 0.18) 1px,
-                rgba(0, 0, 0, 0.18) 2px,
+                rgba(0, 0, 0, 0.10) 1px,
+                rgba(0, 0, 0, 0.10) 2px,
                 rgba(0, 0, 0, 0) 3px
             );
             mix-blend-mode: multiply;
@@ -796,9 +781,9 @@
             width: 100%;
             height: 100%;
             pointer-events: none;
-            z-index: 10002;
+            z-index: 100011;
             mix-blend-mode: overlay;
-            opacity: 0.32;
+            opacity: 0.18;
             image-rendering: pixelated;
             image-rendering: -moz-crisp-edges;
             image-rendering: crisp-edges;
@@ -810,13 +795,13 @@
             right: 0;
             height: 140px;
             pointer-events: none;
-            z-index: 10003;
+            z-index: 100012;
             background: linear-gradient(
                 to bottom,
                 rgba(255, 255, 255, 0) 0%,
-                rgba(255, 235, 190, 0.06) 45%,
-                rgba(255, 255, 255, 0.1) 50%,
-                rgba(255, 235, 190, 0.06) 55%,
+                rgba(255, 235, 190, 0.035) 45%,
+                rgba(255, 255, 255, 0.055) 50%,
+                rgba(255, 235, 190, 0.035) 55%,
                 rgba(255, 255, 255, 0) 100%
             );
             mix-blend-mode: screen;
@@ -833,13 +818,13 @@
             position: fixed;
             inset: 0;
             pointer-events: none;
-            z-index: 10004;
+            z-index: 100013;
             background:
-                repeating-linear-gradient(to bottom, rgba(255, 20, 60, 0.05) 0px, rgba(255, 20, 60, 0.05) 1px, transparent 1px, transparent 3px),
-                repeating-linear-gradient(to bottom, rgba(0, 210, 255, 0.05) 0px, rgba(0, 210, 255, 0.05) 1px, transparent 1px, transparent 3px);
+                repeating-linear-gradient(to bottom, rgba(255, 20, 60, 0.025) 0px, rgba(255, 20, 60, 0.025) 1px, transparent 1px, transparent 3px),
+                repeating-linear-gradient(to bottom, rgba(0, 210, 255, 0.025) 0px, rgba(0, 210, 255, 0.025) 1px, transparent 1px, transparent 3px);
             background-position: -1.5px 0, 1.5px 0;
             mix-blend-mode: screen;
-            opacity: 0.7;
+            opacity: 0.38;
         }
 
         /* ----- VHS: полоса ошибки трекинга, изредка пробегающая по экрану ----- */
@@ -850,7 +835,7 @@
             top: -40px;
             height: 34px;
             pointer-events: none;
-            z-index: 10005;
+            z-index: 100014;
             background:
                 repeating-linear-gradient(to bottom, rgba(255,255,255,0.9) 0px, rgba(255,255,255,0.9) 2px, transparent 2px, transparent 4px),
                 linear-gradient(to right, rgba(255,20,60,0.3), rgba(255,255,255,0.05) 50%, rgba(0,210,255,0.3));
@@ -865,9 +850,9 @@
 
         @keyframes vhsTrackingSweep {
             0%   { top: -40px; opacity: 0; }
-            8%   { opacity: 0.85; }
-            50%  { top: 45%; opacity: 0.85; }
-            92%  { opacity: 0.85; }
+            8%   { opacity: 0.55; }
+            50%  { top: 45%; opacity: 0.55; }
+            92%  { opacity: 0.55; }
             100% { top: 100%; opacity: 0; }
         }
 
@@ -887,19 +872,19 @@
             position: fixed;
             inset: 0;
             pointer-events: none;
-            z-index: 10007;
+            z-index: 100016;
             border-radius: 0;
             box-shadow:
-                inset 0 0 160px 70px rgba(0, 0, 0, 0.82),
-                inset 4px 0 8px rgba(255, 0, 70, 0.14),
-                inset -4px 0 8px rgba(0, 220, 255, 0.12);
+                inset 0 0 140px 55px rgba(0, 0, 0, 0.55),
+                inset 4px 0 8px rgba(255, 0, 70, 0.07),
+                inset -4px 0 8px rgba(0, 220, 255, 0.06);
         }
 
         .crt-flicker {
             position: fixed;
             inset: 0;
             pointer-events: none;
-            z-index: 10006;
+            z-index: 100015;
             background: #000;
             opacity: 0;
             animation: crtFlicker 6.5s infinite;
@@ -907,11 +892,11 @@
 
         @keyframes crtFlicker {
             0%, 96%, 100% { opacity: 0; }
-            96.5% { opacity: 0.06; }
+            96.5% { opacity: 0.03; }
             97% { opacity: 0; }
-            97.5% { opacity: 0.1; }
+            97.5% { opacity: 0.04; }
             98% { opacity: 0; }
-            98.4% { opacity: 0.04; }
+            98.4% { opacity: 0.02; }
             98.7% { opacity: 0; }
         }
 
@@ -969,23 +954,6 @@
             overflow: hidden;
         }
 
-        .project-card::after,
-        .republic-card::after,
-        .chapter-block::after {
-            content: '';
-            position: absolute;
-            inset: -120% -30%;
-            background: linear-gradient(115deg, transparent 44%, rgba(255,255,255,0.12) 50%, transparent 56%);
-            transform: translateX(-45%) rotate(10deg);
-            animation: cardSweep 6s ease-in-out infinite;
-            pointer-events: none;
-        }
-
-        @keyframes cardSweep {
-            0%, 58%, 100% { transform: translateX(-55%) rotate(10deg); }
-            78% { transform: translateX(55%) rotate(10deg); }
-        }
-
         h2 i {
             animation: iconPulse 2.4s ease-in-out infinite;
         }
@@ -1016,7 +984,7 @@
         @media (prefers-reduced-motion: reduce) {
             .crt-rollbar, .crt-flicker, #crt-noise-canvas, .vhs-tracking, .vhs-jump,
             .hazard-strip, .title-group h1, .splash-content,
-            .splash-menu-btn::before, #splash-screen::after,
+            #splash-screen::after,
             .boot-star, .boot-progress span {
                 animation: none !important;
             }
@@ -1209,6 +1177,390 @@
             .nav button.nav-btn { font-size: 0.85rem; padding: 7px 14px; }
             .projects-grid { grid-template-columns: 1fr; }
         }
+
+
+        /* ================== PATCH: УСИЛЕННОЕ СВЕЧЕНИЕ И АНИМАЦИИ ================== */
+        /* ============================================================
+           ДОБАВИТЬ/ЗАМЕНИТЬ в <style> сайта.
+           Ниже — усиленные версии существующих правил (свечение ярче,
+           анимации быстрее и заметнее) + несколько новых эффектов.
+           Вставляй классы там же, где были старые версии с теми же именами
+           (они просто переопределят старые значения, если добавить ниже).
+           ============================================================ */
+        
+        /* --- Заголовок "КПРС" (заставка): сильнее свечение и шире амплитуда пульса --- */
+        .splash-content h1 {
+            text-shadow:
+                0 0 25px #ffd700,
+                0 0 55px #ff8800,
+                0 0 100px #ff4400,
+                0 0 160px #ff2200;
+            animation: goldPulse 1.8s ease-in-out infinite alternate;
+        }
+        
+        .title-group h1 {
+            text-shadow:
+                0 0 18px #ffd700,
+                0 0 35px #ffaa00,
+                0 0 65px #ff8800,
+                0 0 120px #ff4400,
+                0 0 200px #ff2200;
+            animation: goldPulse 1.6s ease-in-out infinite alternate;
+        }
+        
+        @keyframes goldPulse {
+            0% {
+                text-shadow: 0 0 18px #ffd700, 0 0 35px #ff8800, 0 0 65px #ff4400;
+                filter: brightness(1);
+            }
+            100% {
+                text-shadow: 0 0 55px #ffd700, 0 0 110px #ff8800, 0 0 180px #ff4400, 0 0 260px #ff2200;
+                filter: brightness(1.25);
+            }
+        }
+        
+        /* --- Общий фоновый пульс по всему контейнеру: мягкая "дышащая" аура --- */
+        .container {
+            animation: containerBreathe 3.5s ease-in-out infinite;
+        }
+        
+        @keyframes containerBreathe {
+            0%, 100% {
+                box-shadow: 0 0 55px rgba(220, 25, 25, 0.65), inset 0 0 42px rgba(130, 10, 10, 0.4),
+                            0 0 120px rgba(255, 180, 0, 0.08);
+            }
+            50% {
+                box-shadow: 0 0 90px rgba(255, 40, 40, 0.85), inset 0 0 60px rgba(170, 20, 20, 0.55),
+                            0 0 200px rgba(255, 200, 0, 0.22);
+            }
+        }
+        
+        /* --- Хазард-полосы: быстрее и ярче --- */
+        .hazard-strip {
+            animation: hazardShift 2.2s linear infinite, hazardPulse 2.8s ease-in-out infinite alternate;
+            box-shadow: 0 0 35px rgba(255, 60, 60, 0.7), 0 0 60px rgba(255, 180, 0, 0.25);
+        }
+        
+        @keyframes hazardPulse {
+            from { filter: brightness(0.9) saturate(1); }
+            to   { filter: brightness(1.35) saturate(1.4); }
+        }
+        
+        /* --- Кнопки навигации/меню: более выраженное неоновое свечение при наведении --- */
+        .nav button.nav-btn:hover,
+        .splash-menu-btn:hover {
+            box-shadow: 0 0 18px 4px var(--red-primary), 0 0 40px 10px rgba(255, 215, 0, 0.45),
+                        0 0 70px rgba(255, 100, 0, 0.3);
+            transform: translateY(-4px) scale(1.03);
+        }
+        
+        /* Постоянное лёгкое свечение кнопок даже без наведения */
+        .nav button.nav-btn,
+        .splash-menu-btn {
+            box-shadow: 0 0 6px rgba(166, 28, 28, 0.5);
+            animation: buttonFloat 2.6s ease-in-out infinite, buttonGlowIdle 3.2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes buttonGlowIdle {
+            from { box-shadow: 0 0 6px rgba(166, 28, 28, 0.4); }
+            to   { box-shadow: 0 0 16px rgba(255, 60, 60, 0.6), 0 0 30px rgba(255, 180, 0, 0.15); }
+        }
+        
+        /* --- Заголовки секций (h2): более яркое и пульсирующее свечение --- */
+        h2 {
+            text-shadow: 0 0 35px #cc2222, 0 0 20px rgba(255, 60, 0, 0.8), 0 0 55px rgba(255, 215, 0, 0.35);
+            animation: none;
+        }
+        
+        @keyframes h2Glow {
+            from { text-shadow: 0 0 20px #cc2222, 0 0 10px rgba(255, 60, 0, 0.6); }
+            to   { text-shadow: 0 0 45px #ff2222, 0 0 25px rgba(255, 100, 0, 0.9), 0 0 70px rgba(255, 215, 0, 0.4); }
+        }
+        
+        /* --- Иконки в заголовках: сильнее пульс и вращение --- */
+        h2 i {
+            animation: none;
+        }
+        
+        @keyframes iconPulse {
+            0%, 100% { transform: scale(1) rotate(0deg); text-shadow: 0 0 10px rgba(255, 215, 0, 0.25); }
+            50% { transform: scale(1.25) rotate(-8deg); text-shadow: 0 0 30px rgba(255, 215, 0, 0.85), 0 0 50px rgba(255,120,0,0.5); }
+        }
+        
+        /* --- Карточки (проекты/республики/главы конституции): яркая обводка при наведении + бегущий блик чаще --- */
+        .project-card:hover,
+        .republic-card:hover,
+        .chapter-block:hover {
+            box-shadow: 0 10px 28px #300000, 0 0 30px rgba(204,34,34,0.55), 0 0 55px rgba(255,215,0,0.25);
+        }
+        
+        /* --- Секции при появлении: более заметное свечение по контуру --- */
+        section.visible {
+            animation: sectionGlow 2.6s ease-in-out infinite alternate;
+        }
+        
+        @keyframes sectionGlow {
+            from { box-shadow: inset 0 0 22px rgba(100, 10, 10, 0.22), 0 0 0 rgba(255,215,0,0); }
+            to   { box-shadow: inset 0 0 36px rgba(180, 20, 20, 0.4), 0 0 22px rgba(255, 120, 0, 0.18); }
+        }
+        
+        /* --- Звёздочка-орнамент: заметнее и с изменением масштаба --- */
+        .star-ornament {
+            animation: ornamentDrift 4.5s ease-in-out infinite;
+        }
+        
+        @keyframes ornamentDrift {
+            0%, 100% { transform: rotate(10deg) translateY(0) scale(1); opacity: 0.18; }
+            50% { transform: rotate(-8deg) translateY(-12px) scale(1.3); opacity: 0.4; }
+        }
+        
+        /* --- НОВОЕ: бегущие искры по краю контейнера (доп. слой свечения) --- */
+        .container::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 4px;
+            padding: 2px;
+            background: linear-gradient(120deg, transparent 0%, rgba(255,215,0,0.65) 50%, transparent 100%);
+            background-size: 250% 250%;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            animation: borderSparkle 4s linear infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        @keyframes borderSparkle {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 200% 50%; }
+        }
+        
+        /* --- НОВОЕ: лёгкое дрожание/сияние слогана --- */
+        .slogan {
+            animation: sloganGlow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes sloganGlow {
+            from { text-shadow: 0 0 10px #ff0000, 0 2px 6px #000, 0 0 15px #ffd700; }
+            to   { text-shadow: 0 0 28px #ff2200, 0 2px 10px #000, 0 0 35px #ffd700, 0 0 55px rgba(255,180,0,0.5); }
+        }
+
+        /* ================== ЭКРАН ВЫБОРА ЗВУКА ================== */
+        #sound-choice-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 100000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background:
+                radial-gradient(circle at 50% 45%, rgba(166,28,28,.32), transparent 48%),
+                linear-gradient(rgba(0,0,0,.72), rgba(12,6,4,.96));
+            text-align: center;
+        }
+        #sound-choice-screen.active { display: flex; }
+
+        .sound-choice-box {
+            position: relative;
+            z-index: 100020;
+            width: min(620px, 94vw);
+            padding: 42px 32px 34px;
+            border: 2px solid rgba(255,215,0,.75);
+            border-radius: 16px;
+            background: rgba(18,10,8,.94);
+            box-shadow: 0 0 25px rgba(166,28,28,.55), 0 0 55px rgba(255,215,0,.18);
+            animation: soundChoiceAppear .65s ease both;
+        }
+        .sound-choice-icon {
+            font-size: 3.4rem;
+            color: #ffd700;
+            margin-bottom: 18px;
+            text-shadow: 0 0 15px #ff0000, 0 0 30px rgba(255,215,0,.7);
+            animation: soundChoicePulse 1.8s ease-in-out infinite;
+        }
+        .sound-choice-box h2 {
+            margin: 0 0 12px;
+            color: #ffd700;
+            font-family: Oswald, sans-serif;
+            font-size: clamp(2rem, 6vw, 3.4rem);
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            text-shadow: 0 0 12px #a61c1c, 0 0 28px rgba(255,215,0,.45);
+        }
+        .sound-choice-box p {
+            margin: 0 auto 28px;
+            max-width: 480px;
+            color: #e8dcc0;
+            font-size: 1.05rem;
+            line-height: 1.6;
+        }
+        .sound-choice-actions {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+        .sound-choice-btn {
+            min-width: 170px;
+            padding: 13px 24px;
+            border: 1px solid rgba(255,215,0,.8);
+            border-radius: 8px;
+            background: linear-gradient(180deg, #a61c1c, #5c1010);
+            color: #fff;
+            font: 600 1rem Oswald, sans-serif;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 0 0 12px rgba(166,28,28,.55);
+            transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
+        }
+        .sound-choice-btn.secondary {
+            background: rgba(50,35,30,.8);
+            color: #e8dcc0;
+        }
+        .sound-choice-btn:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 0 22px rgba(255,215,0,.35), 0 0 35px rgba(166,28,28,.45);
+            filter: brightness(1.15);
+        }
+        @keyframes soundChoiceAppear {
+            from { opacity: 0; transform: scale(.92) translateY(18px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes soundChoicePulse {
+            0%, 100% { transform: scale(1); opacity: .85; }
+            50% { transform: scale(1.12); opacity: 1; }
+        }
+
+        /* ================== МОБИЛЬНАЯ ОПТИМИЗАЦИЯ ================== */
+        @media (max-width: 700px) {
+            html { overflow-x: hidden; }
+            body {
+                padding: 10px 8px 0;
+                min-height: 100dvh;
+                background-attachment: scroll;
+                line-height: 1.5;
+            }
+
+            /* Меньше дорогих эффектов на мобильных GPU */
+            .container {
+                width: 100%;
+                padding: 0 12px 20px;
+                box-shadow: 0 0 22px rgba(180,20,20,.42), inset 0 0 18px rgba(100,10,10,.25);
+                backdrop-filter: none;
+                -webkit-backdrop-filter: none;
+            }
+            body::before, .container::after { opacity: .22; mix-blend-mode: normal; }
+
+            .hazard-strip { width: 100%; height: 7px; box-shadow: 0 0 12px rgba(204,34,34,.45); }
+            .hazard-strip.bottom { margin-bottom: 12px; }
+
+            .header { padding: 24px 4px 14px; margin-bottom: 16px; }
+            .title-group h1 { font-size: clamp(2rem, 11vw, 3rem); letter-spacing: 3px; }
+            .title-group .subhead {
+                font-size: clamp(.78rem, 3.7vw, 1.1rem);
+                letter-spacing: 2px;
+                padding: 7px 10px;
+                max-width: 100%;
+            }
+            .slogan { font-size: clamp(.95rem, 4.5vw, 1.3rem); letter-spacing: 1px; }
+
+            .nav-wrapper { margin-bottom: 4px; }
+            .nav { gap: 7px; padding: 7px 0 12px; margin-bottom: 18px; }
+            .nav button.nav-btn {
+                flex: 1 1 calc(50% - 7px);
+                justify-content: center;
+                min-height: 42px;
+                padding: 8px 8px;
+                font-size: .84rem;
+                letter-spacing: .7px;
+                gap: 5px;
+            }
+            .nav button.nav-btn:hover, .splash-menu-btn:hover { transform: none; }
+            .nav button.nav-btn, .splash-menu-btn { animation: none; }
+
+            section { padding: 13px 11px; margin-bottom: 14px; }
+            section.visible { animation: none; }
+            h2 { font-size: clamp(1.35rem, 6.5vw, 1.9rem); line-height: 1.2; }
+            h2 i { font-size: 1.25rem; animation: none; }
+            p, li { font-size: .96rem; }
+
+            .projects-grid { gap: 10px; }
+            .project-card, .republic-card, .chapter-block {
+                box-shadow: 0 4px 14px rgba(48,0,0,.55);
+            }
+            /* card shimmer removed */
+            .project-card:hover, .republic-card:hover, .chapter-block:hover {
+                transform: none;
+                box-shadow: 0 4px 14px rgba(48,0,0,.55);
+            }
+
+            .sound-toggle-btn {
+                top: max(10px, env(safe-area-inset-top));
+                right: max(10px, env(safe-area-inset-right));
+                width: 42px; height: 42px;
+                backdrop-filter: none;
+                -webkit-backdrop-filter: none;
+            }
+            #kprsMusicBlock {
+                top: max(10px, env(safe-area-inset-top));
+                right: max(10px, env(safe-area-inset-right));
+                padding: 0; background: transparent; border: 0; box-shadow: none;
+            }
+
+            #sound-choice-screen {
+                padding: max(18px, env(safe-area-inset-top)) 14px max(18px, env(safe-area-inset-bottom));
+            }
+            .sound-choice-box {
+                width: min(100%, 430px);
+                padding: 28px 18px 22px;
+                border-radius: 12px;
+                box-shadow: 0 0 18px rgba(166,28,28,.5), 0 0 30px rgba(255,215,0,.12);
+            }
+            .sound-choice-icon { font-size: 2.7rem; margin-bottom: 12px; }
+            .sound-choice-box h2 { font-size: clamp(1.8rem, 10vw, 2.6rem); }
+            .sound-choice-box p { font-size: .94rem; margin-bottom: 20px; }
+            .sound-choice-actions { flex-direction: column; gap: 10px; }
+            .sound-choice-btn { width: 100%; min-height: 46px; padding: 11px 16px; }
+
+            #boot-screen { padding: 16px; }
+            .boot-star-wrap { margin-bottom: 14px; }
+            .boot-subtitle { margin-bottom: 28px; letter-spacing: 2px; }
+            .boot-progress { width: min(230px, 78vw); }
+
+            /* Единый VHS остаётся, но мобильная версия менее тяжёлая */
+            .crt-rollbar { height: 90px; animation-duration: 15s; }
+            .crt-vignette {
+                box-shadow: inset 0 0 80px 28px rgba(0,0,0,.62),
+                            inset 2px 0 5px rgba(255,0,70,.10),
+                            inset -2px 0 5px rgba(0,220,255,.08);
+            }
+            .crt-scanlines {
+                background: repeating-linear-gradient(to bottom, transparent 0, transparent 2px, rgba(0,0,0,.13) 2px, rgba(0,0,0,.13) 3px);
+            }
+            .vhs-aberration { opacity: .48; }
+        }
+
+        @media (max-width: 380px) {
+            body { padding-left: 5px; padding-right: 5px; }
+            .container { padding-left: 9px; padding-right: 9px; }
+            .nav button.nav-btn { flex-basis: 100%; }
+            section { padding-left: 9px; padding-right: 9px; }
+            .title-group h1 { font-size: 1.9rem; }
+        }
+
+        @media (hover: none) and (pointer: coarse) {
+            .nav button.nav-btn:hover, .splash-menu-btn:hover, .sound-choice-btn:hover {
+                transform: none; filter: none;
+            }
+            button, summary { -webkit-tap-highlight-color: rgba(255,215,0,.16); }
+        }
+
+        @media (prefers-reduced-motion: reduce), (max-width: 700px) {
+            .container { animation: none !important; }
+        }
     </style>
 </head>
 <body class="crt-on">
@@ -1224,7 +1576,7 @@
     <div class="crt-flicker"></div>
     <div class="crt-vignette"></div>
 
-    <!-- ================= ЕДИНЫЙ МУЗЫКАЛЬНЫЙ БЛОК ================= -->
+    <!-- ================= УПРАВЛЕНИЕ АВТОРСКОЙ МЕЛОДИЕЙ ================= -->
     <div id="kprsMusicBlock" style="
         position: fixed;
         top: 16px;
@@ -1240,19 +1592,25 @@
         box-shadow: 0 5px 20px rgba(0,0,0,.45);
     ">
         <button id="soundToggleBtn" class="sound-toggle-btn muted" type="button"
-                aria-label="Включить марш"
-                title="Включить/выключить марш">
+                aria-label="Включить мелодию"
+                title="Включить/выключить звук">
             <i class="fas fa-volume-mute"></i>
         </button>
-        <span style="color:#d4af37;font:600 12px Arial,sans-serif;">МАРШ</span>
-        <input id="kprsVolume" type="range" min="0" max="1" step="0.01" value="0.45"
-               title="Громкость" style="width:90px;cursor:pointer;">
     </div>
 
-    <!-- Песня находится в репозитории рядом с index.html -->
-    <audio id="kprsSong" preload="auto" loop>
-        <source src="command_and_conquer_red_alert_3_04-from_first_to_last_-_hell_march_1-umt (1).mp3" type="audio/mpeg">
-    </audio>
+
+    <!-- ================= ЭКРАН ВЫБОРА ЗВУКА ================= -->
+    <div id="sound-choice-screen" aria-modal="true" role="dialog" aria-labelledby="soundChoiceTitle">
+        <div class="sound-choice-box">
+            <div class="sound-choice-icon"><i class="fas fa-volume-up"></i></div>
+            <h2 id="soundChoiceTitle">Включить звук?</h2>
+            <p>На сайте есть авторская мелодия и звуковые эффекты в стиле старого телевизора.</p>
+            <div class="sound-choice-actions">
+                <button id="soundChoiceYes" class="sound-choice-btn" type="button"><i class="fas fa-volume-up"></i> Включить</button>
+                <button id="soundChoiceNo" class="sound-choice-btn secondary" type="button"><i class="fas fa-volume-mute"></i> Без звука</button>
+            </div>
+        </div>
+    </div>
 
     <!-- ========================================================== -->
     <!-- ЗАСТАВКА (ВХОДНАЯ СТРАНИЦА С МЕНЮ РАЗДЕЛОВ) -->
@@ -1710,6 +2068,9 @@
             const splashButtons = document.querySelectorAll('.splash-menu-btn[data-target]');
             const backToMenuBtn = document.getElementById('backToMenuBtn');
             const soundToggleBtn = document.getElementById('soundToggleBtn');
+            const soundChoiceScreen = document.getElementById('sound-choice-screen');
+            const soundChoiceYes = document.getElementById('soundChoiceYes');
+            const soundChoiceNo = document.getElementById('soundChoiceNo');
 
             // Заставку скрываем сразу — первым делом показываем экран загрузки «КПРСос»
             splash.style.display = 'none';
@@ -1772,53 +2133,175 @@
                 hum.start(0);
                 hum2.start(0);
 
-                startBackgroundMelody();
-
                 audioReady = true;
+                startSovietStyleMelody();
             }
 
-            // --- Фоновая мелодия: авторская, в характере старой советской
-            // маршевой/народной песни. Не цитирует мелодию «Катюши».
-            function startBackgroundMelody() {
-                const song = document.getElementById('kprsSong');
-                const volumeSlider = document.getElementById('kprsVolume');
-                if (!song) return;
+            // --- Оригинальная фоновая мелодия в духе советской маршевой песни.
+            // Генерируется через Web Audio API: внешний MP3-файл не нужен.
+            // Мелодия специально написана с нуля и не цитирует конкретную песню.
+            let melodyTimer = null;
+            let melodyGain = null;
 
-                song.loop = true;
-                song.volume = volumeSlider ? Number(volumeSlider.value) : 0.45;
-
-                const promise = song.play();
-                if (promise && promise.catch) {
-                    promise.catch(function() {
-                        // Автозапуск блокируется браузером до пользовательского действия.
-                    });
+            // имитация большого барабана (бас-бочка) и малого барабана (снэйр) на слабую долю,
+            function noteFrequency(note) {
+                const frequencies = {
+                    C4:261.63, D4:293.66, E4:329.63, F4:349.23,
+                    G4:392.00, A4:440.00, B4:493.88,
+                    C5:523.25, D5:587.33, E5:659.25, F5:698.46,
+                    G5:783.99, A5:880.00
+                };
+                return frequencies[note];
+            }
+            function playMelodyNote(note, startTime, duration, accent) {
+                if (!audioCtx || !melodyGain || !noteFrequency(note)) return;
+                const osc = audioCtx.createOscillator();
+                const filter = audioCtx.createBiquadFilter();
+                const gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(noteFrequency(note), startTime);
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(2400, startTime);
+                const peak = accent ? 0.09 : 0.058;
+                gain.gain.setValueAtTime(0.0001, startTime);
+                gain.gain.exponentialRampToValueAtTime(peak, startTime + 0.015);
+                gain.gain.exponentialRampToValueAtTime(peak * 0.6, startTime + duration * 0.5);
+                gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(melodyGain);
+                osc.start(startTime);
+                osc.stop(startTime + duration + 0.02);
+            }
+            function playMelodyBass(root, startTime, duration) {
+                if (!audioCtx || !melodyGain || !noteFrequency(root)) return;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(noteFrequency(root), startTime);
+                gain.gain.setValueAtTime(0.0001, startTime);
+                gain.gain.exponentialRampToValueAtTime(0.032, startTime + 0.012);
+                gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+                osc.connect(gain);
+                gain.connect(melodyGain);
+                osc.start(startTime);
+                osc.stop(startTime + duration + 0.02);
+            }
+            // --- Большой барабан (бас-бочка): низкий тон с быстрым затуханием частоты
+            function playKickDrum(t) {
+                if (!audioCtx || !melodyGain) return;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(150, t);
+                osc.frequency.exponentialRampToValueAtTime(48, t + 0.09);
+                gain.gain.setValueAtTime(0.22, t);
+                gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
+                osc.connect(gain);
+                gain.connect(melodyGain);
+                osc.start(t);
+                osc.stop(t + 0.18);
+            }
+            // --- Малый барабан (снэйр): шум + короткий тональный щелчок, на слабую долю
+            function playSnareDrum(t) {
+                if (!audioCtx || !melodyGain) return;
+                const dur = 0.11;
+                const bufSize = Math.floor(audioCtx.sampleRate * dur);
+                const buf = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
+                const data = buf.getChannelData(0);
+                for (let i = 0; i < bufSize; i++) {
+                    const env = 1 - i / bufSize;
+                    data[i] = (Math.random() * 2 - 1) * env;
                 }
-
+                const noise = audioCtx.createBufferSource();
+                noise.buffer = buf;
+                const noiseFilter = audioCtx.createBiquadFilter();
+                noiseFilter.type = 'highpass';
+                noiseFilter.frequency.value = 1200;
+                const noiseGain = audioCtx.createGain();
+                noiseGain.gain.setValueAtTime(0.14, t);
+                noiseGain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+                noise.connect(noiseFilter);
+                noiseFilter.connect(noiseGain);
+                noiseGain.connect(melodyGain);
+                noise.start(t);
+                noise.stop(t + dur + 0.01);
+                const osc = audioCtx.createOscillator();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(200, t);
+                const oscGain = audioCtx.createGain();
+                oscGain.gain.setValueAtTime(0.05, t);
+                oscGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.05);
+                osc.connect(oscGain);
+                oscGain.connect(melodyGain);
+                osc.start(t);
+                osc.stop(t + 0.06);
+            }
+            function scheduleSovietStylePhrase() {
+                if (!audioCtx || !melodyGain) return 0;
+                // Темп заметно выше и ритм плотнее — фраза звучит как чёткий марш/гимн,
+                // а не как медленная напевная мелодия.
+                const tempo = 132;
+                const beat = 60 / tempo;
+                const phrase = [
+                    ['G4',1], ['G4',0.5], ['A4',0.5], ['B4',1],
+                    ['D5',1], ['C5',0.5], ['B4',0.5], ['A4',1],
+                    ['G4',1], ['A4',0.5], ['B4',0.5], ['C5',1],
+                    ['D5',1.5], ['B4',0.5], ['G4',1],
+                    ['G4',0.5], ['A4',0.5], ['B4',1], ['D5',1],
+                    ['E5',0.5], ['D5',0.5], ['C5',1], ['B4',1],
+                    ['A4',0.5], ['B4',0.5], ['C5',1], ['D5',1],
+                    ['G5',1.5], ['D5',0.5], ['G4',1]
+                ];
+                const bass = ['G4','G4','D4','D4','G4','C4','D4','G4'];
+                let cursor = audioCtx.currentTime + 0.06;
+                let beatIndex = 0;
+                for (let i = 0; i < phrase.length; i++) {
+                    const noteDur = beat * phrase[i][1];
+                    const duration = noteDur * 0.9;
+                    const accent = i % 4 === 0;
+                    playMelodyNote(phrase[i][0], cursor, duration, accent);
+                    if (accent) {
+                        playMelodyBass(bass[(i / 4) % bass.length], cursor, beat * 0.85);
+                    }
+                    // Маршевый ритм ударных: бас-бочка на каждую сильную долю,
+                    // малый барабан на "и" (полу-долю) — классический пульс марша.
+                    const wholeBeats = Math.max(1, Math.round(phrase[i][1] / 0.5));
+                    for (let b = 0; b < wholeBeats; b++) {
+                        const drumTime = cursor + b * beat * 0.5;
+                        if (beatIndex % 2 === 0) {
+                            playKickDrum(drumTime);
+                        } else {
+                            playSnareDrum(drumTime);
+                        }
+                        beatIndex++;
+                    }
+                    cursor += noteDur;
+                }
+                return cursor - audioCtx.currentTime;
+            }
+            function startSovietStyleMelody() {
+                if (!audioCtx) return;
+                if (!melodyGain) {
+                    melodyGain = audioCtx.createGain();
+                    melodyGain.gain.value = 0.32;
+                    melodyGain.connect(masterGain);
+                }
+                if (melodyTimer) return;
+                const phraseDuration = scheduleSovietStylePhrase();
+                melodyTimer = setInterval(function() {
+                    if (soundEnabled) scheduleSovietStylePhrase();
+                }, Math.max(800, phraseDuration * 1000 - 60));
                 window.kprsMusicStarted = true;
-                window.kprsMusicSource = song;
+                window.kprsMusicSource = null;
             }
 
-            // Запуск песни после первого пользовательского действия.
-            ['click', 'touchstart', 'keydown'].forEach(function(eventName) {
-                document.addEventListener(eventName, function enableKprsMusic() {
-                    startBackgroundMelody();
-                    document.removeEventListener(eventName, enableKprsMusic);
-                }, { once: true, passive: true });
-            });
 
-            // Громкость песни управляется тем же единым музыкальным блоком.
-            const kprsVolume = document.getElementById('kprsVolume');
-            if (kprsVolume) {
-                kprsVolume.addEventListener('input', function() {
-                    const song = document.getElementById('kprsSong');
-                    if (song) song.volume = Number(this.value);
-                });
-            }
-
-            // Разрешаем звук после первого действия пользователя.
+            // Web Audio запускается после первого действия пользователя.
             ["click", "touchstart", "keydown"].forEach(function(eventName) {
                 document.addEventListener(eventName, function enableKprsMusic() {
-                    startBackgroundMelody();
+                    if (!audioReady) buildAudioGraph();
+                    else startSovietStyleMelody();
                     document.removeEventListener(eventName, enableKprsMusic);
                 }, { once: true, passive: true });
             });
@@ -2300,7 +2783,7 @@
 
                 // Размер одного "зерна" статики в CSS-пикселях экрана.
                 // Меньше значение — мельче и плотнее шум.
-                const GRAIN_SIZE = 2;
+                const GRAIN_SIZE = window.innerWidth <= 700 ? 4 : 2;
 
                 function sizeNoiseCanvas() {
                     NOISE_W = Math.max(120, Math.round(window.innerWidth / GRAIN_SIZE));
@@ -2326,7 +2809,7 @@
                 renderStaticFrame();
 
                 // ~15 кадров статики в секунду — достаточно "живо", но не грузит CPU
-                setInterval(renderStaticFrame, 66);
+                setInterval(renderStaticFrame, window.innerWidth <= 700 ? 110 : 66);
 
                 let resizeTimer;
                 window.addEventListener('resize', function() {
@@ -2392,7 +2875,27 @@
             // При открытии страницы сначала полностью показывается экран
             // загрузки «КПРСос», и только после него — заставка с меню разделов.
             playBootSequence(BOOT_DURATION, function() {
+                // После загрузки сначала показываем отдельный экран выбора звука.
+                // Музыка запускается только после явного действия пользователя.
+                soundChoiceScreen.classList.add('active');
+            });
+
+            function finishSoundChoice(enabled) {
+                if (enabled) setSoundEnabled(true);
+                else setSoundEnabled(false);
+
+                soundChoiceScreen.classList.remove('active');
                 splash.style.display = 'flex';
+                splash.classList.remove('hidden');
+                window.scrollTo(0, 0);
+            }
+
+            soundChoiceYes.addEventListener('click', function() {
+                finishSoundChoice(true);
+            });
+
+            soundChoiceNo.addEventListener('click', function() {
+                finishSoundChoice(false);
             });
         })();
     </script>
